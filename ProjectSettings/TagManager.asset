@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Doctor
+  - Nurse
+  - Inpatient
+  - Outpatient
+  - EmergencyPatient
+  - Bed
+  - Chair
+  - AutoDoor
+  - ICUPatient
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - Minimap
+  - Floor 1 L
+  - Floor 1 R
+  - Floor 2 L
+  - Floor 2 R
+  - Floor 3 L
+  - Floor 3 R
+  - Floor 4 L
+  - Floor 4 R
+  - Floor 1
+  - Floor 2
+  - Floor 3
+  - Floor 4
+  - Roof
+  - Floor 5 L
+  - Floor 5 R
+  - Floor 5
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
