@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class GraphManager : MonoBehaviour
 {
     public Transform graphContainer;    // 그래프를 그릴 부모 객체
-    public Toggle totalToggle, doctorToggle, nurseToggle, inpatientToggle, outpatientToggle, emergencyToggle;
+    public Toggle totalToggle, doctorToggle, nurseToggle, inpatientToggle, outpatientToggle, emergencyToggle, icuToggle;
 
     Dictionary<string, List<GameObject>> graphLines = new Dictionary<string, List<GameObject>>();
 
@@ -19,6 +19,7 @@ public class GraphManager : MonoBehaviour
         inpatientToggle = GameObject.Find("InpatientToggle").GetComponent<Toggle>();
         outpatientToggle = GameObject.Find("OutpatientToggle").GetComponent<Toggle>();
         emergencyToggle = GameObject.Find("EmergencyToggle").GetComponent<Toggle>();
+        icuToggle = GameObject.Find("IcuToggle").GetComponent<Toggle>();
 
         // 토글별 그래프 리스트 초기화
         graphLines["total"] = new List<GameObject>();
@@ -27,6 +28,7 @@ public class GraphManager : MonoBehaviour
         graphLines["inpatients"] = new List<GameObject>();
         graphLines["outpatients"] = new List<GameObject>();
         graphLines["emergencyPatients"] = new List<GameObject>();
+        graphLines["icuPatients"] = new List<GameObject>(); 
 
         // 각 토글에 이벤트 리스너 추가
         totalToggle.onValueChanged.AddListener(isOn => ToggleGraphVisibility("total", isOn));
@@ -35,6 +37,7 @@ public class GraphManager : MonoBehaviour
         inpatientToggle.onValueChanged.AddListener(isOn => ToggleGraphVisibility("inpatients", isOn));
         outpatientToggle.onValueChanged.AddListener(isOn => ToggleGraphVisibility("outpatients", isOn));
         emergencyToggle.onValueChanged.AddListener(isOn => ToggleGraphVisibility("emergencyPatients", isOn));
+        emergencyToggle.onValueChanged.AddListener(isOn => ToggleGraphVisibility("icuPatients", isOn));
     }
 
     public void DrawGraph(List<float> scores, string role)
