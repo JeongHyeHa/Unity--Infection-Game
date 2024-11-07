@@ -57,6 +57,9 @@ public class Virus : MonoBehaviour
     {
         if(oneClearManager != null && oneClearManager.IsDisinfectionOn())
         {
+            Vector3 mousePosition = Input.mousePosition;
+            Debug.Log("Mouse clicked at: " + mousePosition);
+
             Virus clickedVirus = GetComponent<Virus>();
             if (clickedVirus != null)
             {

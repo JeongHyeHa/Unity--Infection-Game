@@ -271,9 +271,9 @@ public class RandomQuest : MonoBehaviour
     {
         int moneyToAdd = clickbtn.name switch
         {
-            "LevelButton1" => 10,
-            "LevelButton2" => 20,
-            "LevelButton3" => 30,
+            "LevelButton1" => 100,
+            "LevelButton2" => 200,
+            "LevelButton3" => 300,
             _ => 0
         };
 
