@@ -99,6 +99,7 @@ public class PolicyItem : MonoBehaviour
 
     void CreateItemEntries()
     {
+        // i: 각 아이템 번호(0~7)
         for (int i = 0; i < policyItemInfo.itemInfos.Length; i++)
         {
             string itemInfo = policyItemInfo.itemInfos[i];
@@ -128,16 +129,28 @@ public class PolicyItem : MonoBehaviour
 
                 Slider[] itemSwitches = new Slider[5];
 
+                // j: 각 아이템의 토글 번호(0~4) 
                 for (int j = 0; j < itemSwitches.Length; j++)
                 {
                     int switchIndex = j;
+                    //string toggleNumber = $"{i + 1}.{switchIndex + 1}"; // 현재 선택한 토글 번호(1.1 ~ 1.5)
+                    int toggleNumber = i + 1; // 현재 선택한 토글 번호(1~8s)
 
-                    string switchPath = $"ItemWearToggle/ItemToggle{j + 1}/Outline/ItemSwitch";
+                    string switchPath = $"ItemWearToggle/ItemToggle{j + 1}/Outline/ItemSwitch";  
                     Slider itemSwitch = itemInstance.transform.Find(switchPath).GetComponent<Slider>();
-                    itemSwitch.onValueChanged.AddListener(delegate { OnSwitchValueChanged(itemName, jobNames[switchIndex], itemInstance); });
+
+                    // 토글이 변경될 때 번호를 포함하여 호출
+                    itemSwitch.onValueChanged.AddListener(delegate (float value){
+                        int toggleState = value == 1 ? 1 : 0;
+                        ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.gear, toggleNumber, switchIndex + 1, toggleState);
+                        //Debug.Log($"toggleNum {toggleNumber}, changed for item {itemName}");    
+                        OnSwitchValueChanged(itemName, jobNames[switchIndex], itemInstance); 
+                    });
+
                     itemSwitches[j] = itemSwitch;
                 }
 
+                // 예외 처리: 특정 아이템은 일부 토글을 비활성화
                 if (itemName != "Dental 마스크" && itemName != "N95 마스크")
                 {
                     for (int k = 2; k <= 4; k++)

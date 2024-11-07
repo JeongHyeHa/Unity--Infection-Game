@@ -146,6 +146,7 @@ public class Ward : MonoBehaviour
         }
         outpatients.Clear();
 
+        /*
         foreach(PatientController inpatient in inpatients)
         {
             if (inpatient != null)
@@ -155,7 +156,7 @@ public class Ward : MonoBehaviour
                 inpatient.StartCoroutine(inpatient.ExitHospital());
             }
         }
-
+        
         foreach (NurseController nurse in nurses)
         {
             if (nurse != null)
@@ -163,15 +164,35 @@ public class Ward : MonoBehaviour
                 Managers.ObjectPooling.DeactivateNurse(nurse.gameObject);
             }
         }
-        nurses.Clear();
-
-        foreach (DoctorController doctor in doctors)
+        
+         foreach (DoctorController doctor in doctors)
         {
             if (doctor != null)
             {
                 Managers.ObjectPooling.DeactivateDoctor(doctor.gameObject);
             }
+        }*/
+
+        for (int i=inpatients.Count-1; i>=0; i--)
+        {
+            if (inpatients[i] != null)
+            {
+                inpatients[i].StopCoroutine(inpatients[i].InpatientMove());
+                inpatients[i].StopCoroutine(inpatients[i].HospitalizationTimeCounter());
+                inpatients[i].StartCoroutine(inpatients[i].ExitHospital());
+            }
         }
+
+        for (int i = nurses.Count -1; i>=0; i--)
+        {
+            if (nurses[i] != null)
+                Managers.ObjectPooling.DeactivateNurse(nurses[i].gameObject);
+        }
+        nurses.Clear();
+
+        
+        for(int i= doctors.Count-1; i>=0; i--)
+            Managers.ObjectPooling.DeactivateDoctor(doctors[i].gameObject);
         doctors.Clear();
 
     }

@@ -244,11 +244,11 @@ public class GameDataManager : MonoBehaviour
         // 모든 모드에 대해 시간 찾기
         foreach (ResearchDBManager.ResearchMode mode in Enum.GetValues(typeof(ResearchDBManager.ResearchMode)))
         {
-            List<(int, string)> recordList = researchManager.researchRecords[mode];  // 현재 모드의 리스트 가져오기
+            List<string> recordList = researchManager.researchRecords[mode];  // 현재 모드의 리스트 가져오기
 
             for (int i = 0; i < recordList.Count; i++)
             {
-                string recordTime = recordList[i].Item2;
+                string recordTime = recordList[i];
 
                 // 시간 범위 내에 있는지 확인
                 if (IsTimeInRange(recordTime, startTime, endTime))

@@ -13,12 +13,14 @@ public class PolicyHospital : MonoBehaviour
     public TextMeshProUGUI[] closingText = new TextMeshProUGUI[8];
 
     Ward ward;
+    ResearchDBManager researchDBManager;
     string[] wards = new string[] { "내과 1", "내과 2", "외과 1", "외과 2", "입원병동1", "입원병동2", "입원병동3", "입원병동4" };
 
 
     void Start()
     {
         ward = FindObjectOfType<Ward>();
+        researchDBManager = FindObjectOfType<ResearchDBManager>();
 
         for (int i = 0; i < closingtoggle.Length; i++)
         {
@@ -39,7 +41,7 @@ public class PolicyHospital : MonoBehaviour
             //Toggle 변경 시 UpdateWardCounts 호출
             closingtoggle[currentIndex].onValueChanged.AddListener(delegate {
                 TogglePairControl(closingtoggle[currentIndex], disinfectiontoggle[currentIndex], disinfectionText[currentIndex]);
-                if(closingtoggle[currentIndex].isOn)
+                if (closingtoggle[currentIndex].isOn)
                 {
                     Ward.wards[currentIndex].CloseWard();
                 }
@@ -48,11 +50,26 @@ public class PolicyHospital : MonoBehaviour
                     Ward.wards[currentIndex].OpenWard();
                 }
                 UpdateWardCounts();
+                PrintToggleState(1, currentIndex, closingtoggle[currentIndex].isOn);
+            });
+
+            disinfectiontoggle[currentIndex].onValueChanged.AddListener(delegate {
+                PrintToggleState(2, currentIndex, disinfectiontoggle[currentIndex].isOn);
             });
         }
 
         // 일정 주기로 병동 데이터 업데이트
         StartCoroutine(UpdateWardCountsPeriodically());
+    }
+
+    //DB 데이터 만들기
+    void PrintToggleState(int toggleType, int wardIndex, bool isOn)
+    {
+        int toggleState = isOn ? 1 : 0;
+        int wardNumber = wardIndex + 1; // 병동 번호 1부터 시작
+        //Debug.Log($"{toggleType}.{wardNumber}.{toggleState}");
+
+        researchDBManager.AddResearchData(ResearchDBManager.ResearchMode.patient, toggleType, wardNumber, toggleState);
     }
 
     // 병동별 의사, 간호사, 외래환자 수 1초마다 업데이트
