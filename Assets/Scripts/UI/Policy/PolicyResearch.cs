@@ -75,7 +75,6 @@ public class PolicyResearch : MonoBehaviour
 
     private int currentTabIndex = 1; // 현재 탭 인덱스 (1번부터 시작)
 
-
     void Awake()
     {
         researchTabButton_1 = Assign(researchTabButton_1, "ResearchTabButton_1");
@@ -179,6 +178,9 @@ public class PolicyResearch : MonoBehaviour
     // 연구 탭 버튼 클릭
     private void StartResearch()
     {
+        // 연구 버튼에 대한 데이터 저장
+        ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.research, 1, 0, 1);
+
         // 연구 시작 버튼 클릭 시 코루틴 시작
         if (researchCoroutine != null)
         {
@@ -189,6 +191,7 @@ public class PolicyResearch : MonoBehaviour
         researchingTimeText.gameObject.SetActive(true);
         researchCoroutine = StartCoroutine(ResearchCoroutine());
     }
+
     private IEnumerator ResearchCoroutine()
     {
         int remainingTime = 10; // 연구 시간 10초
@@ -334,6 +337,9 @@ public class PolicyResearch : MonoBehaviour
             remainingCount--;
         }
 
+        // 연구 버튼에 대한 데이터 저장
+        ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.research, 3, medSelectedWard.num + 1, medicineCount);
+
         medicineCount = 0; // 사용한 후 설정된 사용량 초기화
         medicineUsePanel.SetActive(false);
         UpdateMedicineCountUI();
@@ -443,6 +449,11 @@ public class PolicyResearch : MonoBehaviour
                 remainingCount--;
             }
         }
+
+        // 연구 버튼에 대한 데이터 저장
+        //Debug.Log($"백신개수: {vaccineWard.num+1}, {vaccineCount}");
+        ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.research, 2, vaccineWard.num + 1, vaccineCount);
+
         vaccineCount = 0;
         UpdateVaccineCountUI();
         vaccineUsePanel.SetActive(false);
@@ -572,7 +583,7 @@ public class PolicyResearch : MonoBehaviour
         // MedicineWard 스크롤뷰 업데이트 - 탭이 2번일 때만 호출
         if (currentTabIndex == 2)
         {
-            PopulateMedicineWard();
+            PopulateVaccineWard();
         }
         if (currentTabIndex == 3)
         {
