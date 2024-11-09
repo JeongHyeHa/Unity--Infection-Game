@@ -84,7 +84,7 @@ public class NurseCreator : MonoBehaviour
             NurseController newNurseController = newNurse.GetComponent<NurseController>();
 
             newNurseController.waypoints.AddRange(Managers.NPCManager.waypointDictionary[(newNurseController.ward, "NurseWaypoints")].GetComponentsInChildren<Waypoint>().ToList());
-            newNurseController.waypoints.AddRange(Managers.NPCManager.waypointDictionary[(newNurseController.ward, "InpatientWaypoints")].GetComponentsInChildren<Waypoint>().ToList().GetRange(0, 3));
+            newNurseController.waypoints.AddRange(Managers.NPCManager.waypointDictionary[(newNurseController.ward, "InpatientWaypoints")].GetComponentsInChildren<Waypoint>().ToList());
             int roleNum = i % 12;
             if (0 <= roleNum && roleNum <= 3)
             {

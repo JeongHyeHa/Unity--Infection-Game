@@ -50,7 +50,6 @@ public class InfectionController : MonoBehaviour
             return InfectionState.Covid;
         return InfectionState.Normal;
 
-
     }
 
     IEnumerator CheckInfectionStatus()

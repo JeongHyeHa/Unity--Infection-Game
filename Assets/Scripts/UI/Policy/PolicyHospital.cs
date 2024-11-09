@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -43,17 +43,15 @@ public class PolicyHospital : MonoBehaviour
             // 폐쇄 버튼 클릭 시 처리
             closingButton[currentIndex].onClick.AddListener(() =>
             {
-                Debug.Log($"PolicyHospital: {currentIndex}");
+                //Debug.Log($"PolicyHospital: {currentIndex}");
                 ToggleColsing(currentIndex);
                 if (isClosed[currentIndex])
                 {
                     Ward.wards[currentIndex].CloseWard();
-                    Debug.Log("PolicyHospital: 폐쇄됨");
                 }
                 else
                 {
                     Ward.wards[currentIndex].OpenWard();
-                    Debug.Log("PolicyHospital: 폐쇄 풀림");
                 }
                 UpdateWardCounts();
                 PrintButtonState(1, currentIndex, isClosed[currentIndex]);             // DB에 폐쇄 상태 저장
@@ -73,7 +71,7 @@ public class PolicyHospital : MonoBehaviour
     // 폐쇄 버튼 클릭 시 처리
     void ToggleColsing(int index)
     {
-        Debug.Log($"PolicyHospital: {index}");
+        //Debug.Log($"PolicyHospital: {index}");
         isClosed[index] = !isClosed[index]; // 선택 상태를 토글
 
         disinfectionButton[index].interactable = isClosed[index]; // 소독 버튼 활성화 관리
@@ -125,7 +123,7 @@ public class PolicyHospital : MonoBehaviour
     {
         int toggleState = isOn ? 1 : 0;
         int wardNumber = wardIndex + 1; // 병동 번호 1부터 시작
-        Debug.Log($"PolicyHospital: {toggleType}.{wardNumber}.{toggleState}");
+        //Debug.Log($"PolicyHospital: {toggleType}.{wardNumber}.{toggleState}");
 
         researchDBManager.AddResearchData(ResearchDBManager.ResearchMode.patient, toggleType, wardNumber, toggleState);
     }
@@ -177,7 +175,6 @@ public class PolicyHospital : MonoBehaviour
                 wardCounts.Add(ward.WardName, (doctorCount, nurseCount, outpatientCount));
             }
         }
-
         return wardCounts;
     }
 }

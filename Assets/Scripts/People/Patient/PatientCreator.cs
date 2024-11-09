@@ -103,7 +103,7 @@ public class PatientCreator
             newICUPatientController.bedWaypoint.isEmpty = false;
             Transform waypointTransform = newICUPatientController.bedWaypoint.transform.parent;
             newICUPatientController.wardComponent = waypointTransform.parent.GetComponent<Ward>();
-            newICUPatientController.wardComponent.inpatients.Add(newICUPatientController);
+            newICUPatientController.wardComponent.icuPatients.Add(newICUPatientController);
             profileWindow.AddICUPateintProfile(newICUPatient);
             numberOfICUPatient++;
         }
@@ -126,6 +126,7 @@ public class PatientCreator
         }
         if (isClosed)
         {
+            outpatientWaiting = false;
             yield break;
         }
         Vector3 spawnPosition = spawnAreas[Random.Range(0, 2)].GetRandomPointInRange(); // 랜덤 생성 위치 설정
@@ -186,6 +187,7 @@ public class PatientCreator
 
         if (nextBed == null)
         {
+            emergencyPatientWaiting = false;
             yield break;
         }
 

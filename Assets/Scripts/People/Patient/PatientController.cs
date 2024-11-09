@@ -252,10 +252,6 @@ public class PatientController : NPCController
             yield return new WaitForSeconds(1.5f);
         }
 
-
-
-
-
         // 현재 웨이포인트 인덱스에 따라 다음 웨이포인트 추가
         AddOutpatientWaypoint();
 
@@ -291,6 +287,10 @@ public class PatientController : NPCController
                     BedWaypoint nextBed = null;
                     foreach (Ward ward in Ward.wards)
                     {
+                        if(ward.isClosed)
+                        {
+                            continue;
+                        }
                         foreach (BedWaypoint bed in ward.beds)
                         {
                             if (bed.patient == null && 4 <= ward.num && ward.num <= 7)
@@ -333,7 +333,9 @@ public class PatientController : NPCController
                         AddInpatientWaypoints();
                         personComponent.role = Role.Inpatient;
                         agent.SetDestination(bedWaypoint.GetBedPoint());
-                        //yield return new WaitUntil(() => Managers.NPCManager.isArrived(agent));
+                        isWaiting = true;
+                        yield return new WaitUntil(() => Managers.NPCManager.isArrived(agent));
+                        wardComponent.inpatients.Add(this);
                         waypointIndex = -1;
                         isWaiting = false;
                         yield break;
@@ -500,6 +502,10 @@ public class PatientController : NPCController
         BedWaypoint nextBed = null;
         foreach (Ward ward in Ward.wards)
         {
+            if(ward.isClosed)
+            {
+                continue;
+            }
             foreach (BedWaypoint bed in ward.beds)
             {
                 if (bed.patient == null && 4 <= ward.num && ward.num <= 7)
@@ -798,7 +804,7 @@ public class PatientController : NPCController
 
     }
 
-    private void AddInpatientWaypoints()
+    public void AddInpatientWaypoints()
     {
         waypoints.Add(bedWaypoint);
         waypoints[0].isEmpty = true;

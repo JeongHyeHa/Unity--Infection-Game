@@ -113,7 +113,7 @@ public class RandomQuest : MonoBehaviour
         yield return new WaitUntil(() => mySQLConnector.GetUsers() != null && mySQLConnector.GetUsers().Count > 0);
         usersDB = mySQLConnector.GetUsers();
         answersDB = mySQLConnector.GetAnswers();
-        Debug.Log($"Loaded {usersDB.Count} users and {answersDB.Count} answers from the database.");
+        //Debug.Log($"Loaded {usersDB.Count} users and {answersDB.Count} answers from the database.");
 
         OnLevelButtonClicked(levelButton[0]);                                       // 처음에 level1btn이 선택된 상태로 시작
 
@@ -138,7 +138,7 @@ public class RandomQuest : MonoBehaviour
         SaveCurrentState();
 
         clickbtn = clickedButton.gameObject;
-        Debug.Log($"{clickbtn.name}을 선택함");
+        //Debug.Log($"{clickbtn.name}을 선택함");
         if (clickbtn == null)
         {
             Debug.LogError("현재 선택된 오브젝트가 없습니다");
@@ -191,7 +191,7 @@ public class RandomQuest : MonoBehaviour
     {
         if (!questCanvas.enabled)
         {
-            Debug.Log("Quiz Canvas is not active. Skipping question setup.");
+            //Debug.Log("Quiz Canvas is not active. Skipping question setup.");
             return;
         }
 
