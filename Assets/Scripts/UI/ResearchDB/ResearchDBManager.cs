@@ -50,7 +50,6 @@ public class ResearchDBManager : MonoBehaviour
         string currentMoment = System.DateTime.Now.ToString("mm:ss");
         string formattedData = $"{btnNum}.{targetNum}.{toggleIsOn}.{currentMoment}";
 
-        Debug.Log($"연구정책데이터저장: {mode}, {btnNum}");
         researchRecords[mode].Add((formattedData));  // 연구 메뉴별 버튼의 인덱스와 누른 시간을 튜플 저장
         SendResearchDataToServer();                  // DB 전송
     }
