@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PolicyQuizManager : MonoBehaviour
 {
+    public static PolicyQuizManager Instance {  get; private set; }
     public GameObject questDisfectCanvas;
     public TextMeshProUGUI disinfectQuest;
     public Button[] disinfectAnswers;
@@ -51,6 +52,19 @@ public class PolicyQuizManager : MonoBehaviour
 
     // 정답 배열 
     public static int[] correctAnswers = { 0, 2, 1, 1, 0, 2, 1, 3, 1, 2 };
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
