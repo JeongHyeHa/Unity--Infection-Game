@@ -158,7 +158,7 @@ public class PatientCreator
                 NPCManager.Instance.RegisterNPC(newOutpatient, newOutPatientPerson, renderer);
 
                 // 감염 상태 설정
-                if (Random.value < infectionRate && QuarantineManager.quarantineStep > 0)
+                if (Random.value < infectionRate) //  && QuarantineManager.quarantineStep > 0
                 {
                     if (Managers.Stage.stage == 1)
                     {
@@ -215,7 +215,7 @@ public class PatientCreator
             {
                 NPCManager.Instance.RegisterNPC(newEmergencyPatient, newEmergencyPatientPerson, renderer);
                 // 감염 상태 설정
-                if (Random.value < infectionRate && QuarantineManager.quarantineStep > 0)
+                if (Random.value < infectionRate) //  && QuarantineManager.quarantineStep > 0
                 {
                     if (Managers.Stage.stage == 1)
                     {

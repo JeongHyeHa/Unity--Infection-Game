@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class NewsTicker : MonoBehaviour
 {
@@ -11,6 +11,7 @@ public class NewsTicker : MonoBehaviour
     public Image iconImage;    // 아이콘 이미지
 
     private Queue<string> newsQueue = new Queue<string>();  // 뉴스 큐
+    private Queue<string> positiveNewsQueue = new Queue<string>(); // 긍정적인 뉴스 큐
     private bool isNewsDisplaying = false;  // 현재 뉴스가 표시 중인지 여부
     private Vector2 _vStartPos;  // 텍스트의 시작 위치
     private Vector2 _vEndPos;  // 텍스트의 끝 위치
@@ -41,48 +42,63 @@ public class NewsTicker : MonoBehaviour
         }
     }
 
+    public void EnqueuePositiveNews(string newsText)
+    {
+        positiveNewsQueue.Enqueue(newsText);
+        if (!isNewsDisplaying)
+        {
+            DisplayNextNews();
+        }
+    }
+
     private void DisplayNextNews()
     {
-        if (newsQueue.Count > 0)
+        if (positiveNewsQueue.Count > 0)
+        {
+            string nextPositiveNews = positiveNewsQueue.Dequeue();
+            ins_traTitle.GetComponent<TextMeshProUGUI>().text = nextPositiveNews;
+
+            StartNewsDisplay(true);
+        }
+        else if (newsQueue.Count > 0)
         {
             string nextNews = newsQueue.Dequeue();
             ins_traTitle.GetComponent<TextMeshProUGUI>().text = nextNews;
 
-            // 텍스트의 크기를 다시 계산해서 시작 위치와 끝 위치를 조정
-            float titleWidth = ins_traTitle.rect.width;
-            RectTransform parentRect = ins_traTitle.parent.GetComponent<RectTransform>();
-            float maskWidth = parentRect.rect.width;
-
-            _vStartPos = new Vector2(maskWidth / 2 + titleWidth / 2, ins_traTitle.anchoredPosition.y);
-            _vEndPos = new Vector2(-maskWidth / 2 - titleWidth / 2 - 200, ins_traTitle.anchoredPosition.y);
-
-            ins_traTitle.anchoredPosition = _vStartPos;
-
-            isNewsDisplaying = true;
-
-            // 아이콘 색상 변경 시작
-            if (iconColorCoroutine != null)
-            {
-                StopCoroutine(iconColorCoroutine);
-            }
-            iconColorCoroutine = StartCoroutine(IconColorChange());
-
-            StartCoroutine(CorMoveText());
+            StartNewsDisplay(false);
         }
         else
         {
             isNewsDisplaying = false;
-
-            // 아이콘 색상 변경 중지
             if (iconColorCoroutine != null)
             {
                 StopCoroutine(iconColorCoroutine);
                 iconColorCoroutine = null;
-
-                // 아이콘 색상을 기본 색상(예: 흰색)으로 설정
                 iconImage.color = Color.white;
             }
         }
+    }
+
+    private void StartNewsDisplay(bool isPositive)
+    {
+        float titleWidth = ins_traTitle.rect.width;
+        RectTransform parentRect = ins_traTitle.parent.GetComponent<RectTransform>();
+        float maskWidth = parentRect.rect.width;
+
+        _vStartPos = new Vector2(maskWidth / 2 + titleWidth / 2, ins_traTitle.anchoredPosition.y);
+        _vEndPos = new Vector2(-maskWidth / 2 - titleWidth / 2 - 200, ins_traTitle.anchoredPosition.y);
+
+        ins_traTitle.anchoredPosition = _vStartPos;
+
+        isNewsDisplaying = true;
+
+        if (iconColorCoroutine != null)
+        {
+            StopCoroutine(iconColorCoroutine);
+        }
+        iconColorCoroutine = StartCoroutine(IconColorChange(isPositive));
+
+        StartCoroutine(CorMoveText());
     }
 
     private IEnumerator CorMoveText()
@@ -104,7 +120,6 @@ public class NewsTicker : MonoBehaviour
             yield return null;
         }
 
-        // 텍스트가 사라지면 아이콘 깜빡임을 중지하고 다음 뉴스로 넘어감
         if (iconColorCoroutine != null)
         {
             StopCoroutine(iconColorCoroutine);
@@ -116,16 +131,16 @@ public class NewsTicker : MonoBehaviour
         DisplayNextNews();
     }
 
-    private IEnumerator IconColorChange()
+    private IEnumerator IconColorChange(bool isPositive)
     {
-        Color[] colors = { Color.white, Color.red };
+        Color[] colors = isPositive ? new Color[] { Color.white, Color.green } : new Color[] { Color.white, Color.red };
         int colorIndex = 0;
 
         while (true)
         {
             iconImage.color = colors[colorIndex];
             colorIndex = (colorIndex + 1) % colors.Length;
-            yield return YieldInstructionCache.WaitForSeconds(0.75f);
+            yield return new WaitForSeconds(0.75f);
         }
     }
 }

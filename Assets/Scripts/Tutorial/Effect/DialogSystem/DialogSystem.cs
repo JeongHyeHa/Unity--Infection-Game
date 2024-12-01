@@ -132,24 +132,28 @@ public class DialogSystem : MonoBehaviour
 	private IEnumerator TypingText()
 	{
 		int index = 0;
-		
+
 		isTypingEffect = true;
 
 		// 텍스트를 한글자씩 타이핑치듯 재생
-		while ( index < dialogs[currentIndex].dialogue.Length )
+		while (index < dialogs[currentIndex].dialogue.Length)
 		{
-			textDialogues[(int)currentSpeaker].text = dialogs[currentIndex].dialogue.Substring(0, index);
-
-			index ++;
+			textDialogues[(int)currentSpeaker].text = dialogs[currentIndex].dialogue.Substring(0, index + 1);
+			index++;
 
 			yield return YieldInstructionCache.WaitForSecondsRealtime(typingSpeed);
 		}
 
+		// 타이핑 효과 완료 후 전체 대사 출력 (혹시 누락된 문자가 있을 경우 보완)
+		textDialogues[(int)currentSpeaker].text = dialogs[currentIndex].dialogue;
+
+		// 모든 타이핑 효과가 완료되었음을 표시
 		isTypingEffect = false;
 
 		// 대사가 완료되었을 때 출력되는 커서 활성화
 		objectArrows[(int)currentSpeaker].SetActive(true);
 	}
+
 }
 
 [System.Serializable]

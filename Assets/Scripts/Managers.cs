@@ -45,7 +45,7 @@ public class Managers : MonoBehaviour
         Infection.UpdateInfectionProbability();
         if(QuarantineManager.quarantineStep == 0)
         {
-            PatientCreator.spawnDelay = 0.5f;
+            PatientCreator.spawnDelay = 2.0f;
         }
         else
         {

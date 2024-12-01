@@ -2,9 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using System.Linq;
-using Unity.VisualScripting;
 
 public class PolicyWard : MonoBehaviour
 {
@@ -21,10 +19,12 @@ public class PolicyWard : MonoBehaviour
 
     public Image doctorBack, nurseBack, outpatientBack, inpatientBack, emergencypatientBack, icupatientBack;
 
-    public GameObject infoPanel; // 병동 관리 탭 위 설명표
+    public GameObject infoPanel;        // 병동 관리 탭 위 설명표
     public Button quarantineWardButton; // 격리 병동 전환 버튼
-    public Button closeWardButton;
-    public Button normalWardButton;
+    public Button closeWardButton;      // 폐쇄 병동 전환 버튼
+    public Button normalWardButton;     // 일반 병동 전환 버튼
+    public Button disInfectWardButton;  // 해당 병동 소독 버튼
+    public TextMeshProUGUI disInfectButtonText; // 소독 버튼의 카운트다운 텍스트
 
     public Button qtStartButton_1;
     public Button qtStartButton_2;
@@ -40,6 +40,8 @@ public class PolicyWard : MonoBehaviour
     public bool isQuarantineLevel_2 = false; // 격리 2단계 활성화 여부
     public bool isQuarantineLevel_3 = false; // 격리 3단계 활성화 여부
 
+    private Dictionary<int, WardState> wardStates = new Dictionary<int, WardState>(); // 병동별 상태 저장
+    private const float disinfectCooldownTime = 30f;
 
     public string[] wardNames = {
         "내과 1", "내과 2",
@@ -62,11 +64,14 @@ public class PolicyWard : MonoBehaviour
         }
 
         InitializeDropdown();
+        InitializeWardStates();
         wardDropdown.value = 0;
-        wardDropdown.onValueChanged.AddListener(UpdateWardName);
+        wardDropdown.onValueChanged.AddListener(UpdateWardInfomation);
+
         quarantineWardButton.onClick.AddListener(ChangeWardToQuarantine);
         closeWardButton.onClick.AddListener(ChangeWardToClose);
         normalWardButton.onClick.AddListener(ChangeWardToOpen);
+        disInfectWardButton.onClick.AddListener(DisinfectWard);
         qtStartButton_1.onClick.AddListener(GoLevel1);
         qtStartButton_2.onClick.AddListener(GoLevel2);
         qtStartButton_3.onClick.AddListener(GoLevel3);
@@ -74,25 +79,30 @@ public class PolicyWard : MonoBehaviour
 
     private void Update()
     {
-        CheckIsolationStatus(); // 격리 상태 확인
+        CheckIsolationStatus();
+        UpdateDisinfectCooldowns();
     }
 
-
-
-    // 드롭다운 초기화
     private void InitializeDropdown()
     {
         wardDropdown.ClearOptions();
         wardDropdown.AddOptions(new List<string>(wardNames));
     }
 
-    public void UpdateWardName(int index)
+    private void InitializeWardStates()
     {
-        UpdateWardInfomation(index);
+        for (int i = 0; i < wardNames.Length; i++)
+        {
+            wardStates[i] = new WardState
+            {
+                IsQuarantined = false,
+                IsClosed = false,
+                IsDisinfecting = false,
+                DisinfectEndTime = 0f
+            };
+        }
     }
 
-
-    // 병동 정보 업데이트
     public void UpdateWardInfomation(int index)
     {
         Ward currentWard = Ward.wards.Find(w => w.num == index);
@@ -103,12 +113,67 @@ public class PolicyWard : MonoBehaviour
             Debug.LogError($"병동 데이터를 찾을 수 없습니다. Index: {index}");
             return;
         }
+
         wardNameText.text = currentWard.WardName;
 
-        // 격리 병동 전환 버튼 활성화 상태 설정
-        UpdateQuarantineButtonState(currentWard);
+        WardState state = wardStates[index];
 
-        MinimapRaycaster.Instance.SetExternalHighlightActive(true, currentWard.WardName);
+        // 병동 이름이 "입원병동"으로 시작하지 않는 경우 버튼 비활성화
+        bool isInpatientWard = currentWard.WardName.StartsWith("입원병동");
+
+        quarantineWardButton.gameObject.SetActive(isInpatientWard);
+        closeWardButton.gameObject.SetActive(isInpatientWard);
+        normalWardButton.gameObject.SetActive(isInpatientWard);
+        disInfectWardButton.gameObject.SetActive(isInpatientWard);
+
+        if (isInpatientWard)
+        {
+            // 병동 상태에 따라 버튼 활성화/비활성화
+            if (state.IsQuarantined)
+            {
+                quarantineWardButton.gameObject.SetActive(false);
+                closeWardButton.gameObject.SetActive(false);
+                normalWardButton.gameObject.SetActive(true);
+                disInfectWardButton.gameObject.SetActive(false);
+            }
+            else if (state.IsClosed)
+            {
+                quarantineWardButton.gameObject.SetActive(false);
+                closeWardButton.gameObject.SetActive(false);
+                normalWardButton.gameObject.SetActive(true);
+                disInfectWardButton.interactable = !state.IsDisinfecting;
+                normalWardButton.interactable = !state.IsDisinfecting;
+            }
+            else if (state.IsDisinfecting)
+            {
+                quarantineWardButton.gameObject.SetActive(true);
+                closeWardButton.gameObject.SetActive(true);
+                normalWardButton.gameObject.SetActive(false);
+                disInfectWardButton.interactable = false;
+
+                float remainingTime = state.DisinfectEndTime - Time.time;
+                disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(remainingTime)}초 남음";
+            }
+            else
+            {
+                quarantineWardButton.gameObject.SetActive(true);
+                closeWardButton.gameObject.SetActive(true);
+                normalWardButton.gameObject.SetActive(false);
+                disInfectWardButton.gameObject.SetActive(false);
+                disInfectWardButton.interactable = true;
+                normalWardButton.interactable = true;
+                disInfectButtonText.text = "소독";
+            }
+        }
+        else
+        {
+            quarantineWardButton.gameObject.SetActive(false);
+            closeWardButton.gameObject.SetActive(false);
+            normalWardButton.gameObject.SetActive(false);
+            disInfectWardButton.gameObject.SetActive(false);
+
+            disInfectButtonText.text = "";
+        }
 
         // 인원 수 및 감염 수 업데이트
         UpdateCountText(currentWard.doctors, doctorCountText, doctorInfCountText, doctorBack, currentWard.WardName);
@@ -117,56 +182,202 @@ public class PolicyWard : MonoBehaviour
         UpdateCountText(currentWard.inpatients, inpatientCountText, inpatientInfCountText, inpatientBack, currentWard.WardName);
         UpdateCountText(currentWard.emergencyPatients, emergencypatientCountText, emergencypatientInfCountText, emergencypatientBack, currentWard.WardName);
         UpdateCountText(currentWard.icuPatients, icupatientCountText, icupatientInfCountText, icupatientBack, currentWard.WardName);
-
-        CheckIsolationStatus(); // 격리 상태 확인
     }
 
-    private void UpdateQuarantineButtonState(Ward currentWard)
+
+
+    public void ChangeWardToQuarantine()
     {
-        // 격리 병동 전환 버튼은 입원 병동에서만 활성화
-        if (!currentWard.WardName.StartsWith("입원병동"))
+        int wardId = selectWard.num;
+        WardState state = wardStates[wardId];
+
+        // 병동 상태 업데이트
+        state.IsQuarantined = true;
+        state.IsClosed = false;
+        state.IsDisinfecting = false;
+
+        // 버튼 상태 업데이트
+        closeWardButton.gameObject.SetActive(false);
+        quarantineWardButton.gameObject.SetActive(false);
+        normalWardButton.gameObject.SetActive(true);
+        disInfectWardButton.gameObject.SetActive(false);
+
+        // 병동 격리 로직 호출
+        selectWard.QuarantineWard();
+
+        // 격리 병동으로 전환된 병동 정보 업데이트
+        int index = 1;
+        foreach (string ward in wardNames)
         {
-            quarantineWardButton.gameObject.SetActive(false);
-            closeWardButton.gameObject.SetActive(false);
-            normalWardButton.gameObject.SetActive(false);
+            if (ward == selectWard.WardName)
+            {
+                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 1);
+            }
+            index++;
         }
-        else
+
+        // UI 업데이트
+        UpdateWardInfomation(wardId);
+    }
+
+    public void ChangeWardToClose()
+    {
+        int wardId = selectWard.num;
+        WardState state = wardStates[wardId];
+
+        state.IsClosed = true;
+        state.IsQuarantined = false;
+        state.IsDisinfecting = false;
+
+        closeWardButton.gameObject.SetActive(false);
+        quarantineWardButton.gameObject.SetActive(false);
+        normalWardButton.gameObject.SetActive(true);
+        disInfectWardButton.gameObject.SetActive(true);
+
+        selectWard.CloseWard();
+
+        // 폐쇄 병동 정보 업데이트
+        int index = 1;
+        foreach (string ward in wardNames)
         {
-            quarantineWardButton.gameObject.SetActive(true);
-            closeWardButton.gameObject.SetActive(true);
+            if (ward == selectWard.WardName)
+            {
+                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 2);
+            }
+            index++;
         }
+
+        UpdateWardInfomation(wardId);
+    }
+
+    public void ChangeWardToOpen()
+    {
+        int wardId = selectWard.num;
+        WardState state = wardStates[wardId];
+
+        state.IsQuarantined = false;
+        state.IsClosed = false;
+        state.IsDisinfecting = false;
+
+        quarantineWardButton.gameObject.SetActive(true);
+        closeWardButton.gameObject.SetActive(true);
+        normalWardButton.gameObject.SetActive(false);
+        disInfectWardButton.gameObject.SetActive(false);
+
+        selectWard.OpenWard();
+
+        // 일반 병동 정보 업데이트
+        int index = 1;
+        foreach (string ward in wardNames)
+        {
+            if (ward == selectWard.WardName)
+            {
+                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 3);
+            }
+            index++;
+        }
+
+        UpdateWardInfomation(wardId);
+    }
+
+    public void DisinfectWard()
+    {
+        int wardId = selectWard.num;
+        WardState state = wardStates[wardId];
+
+        if (!state.IsDisinfecting)
+        {
+            state.IsDisinfecting = true;
+            state.DisinfectEndTime = Time.time + disinfectCooldownTime;
+
+            Debug.Log($"병동 {selectWard.WardName} 소독 시작...");
+            // #######여기다가 병동 퀴즈 로직 작성########
+            PolicyQuizManager.Instance.ClearVirusesInWard(selectWard.WardName);
+            Debug.Log($"PlicyQuiz, {selectWard.WardName} 소독");
+
+            // 버튼의 interactable을 false로 설정하고 텍스트 업데이트
+            disInfectWardButton.interactable = false;
+            normalWardButton.interactable = false;
+            disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(disinfectCooldownTime)}초 남음";
+
+            // UI 업데이트
+            UpdateWardInfomation(wardId);
+        }
+    }
+
+
+    private void UpdateDisinfectCooldowns()
+    {
+        foreach (var kvp in wardStates)
+        {
+            int wardId = kvp.Key;
+            WardState state = kvp.Value;
+
+            if (state.IsDisinfecting)
+            {
+                float remainingTime = state.DisinfectEndTime - Time.time;
+
+                // 소독 완료 시 상태 초기화
+                if (remainingTime <= 0)
+                {
+                    state.IsDisinfecting = false;
+
+                    // 현재 병동 UI 업데이트
+                    if (selectWard != null && selectWard.num == wardId)
+                    {
+                        disInfectWardButton.interactable = true;
+                        normalWardButton.interactable = true;
+                        disInfectButtonText.text = "소독";
+                    }
+                }
+                else if (selectWard != null && selectWard.num == wardId)
+                {
+                    // 남은 시간 텍스트 업데이트
+                    disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(remainingTime)}초 남음";
+                }
+            }
+        }
+    }
+
+
+    private void UpdateCountText<T>(List<T> list, TextMeshProUGUI countText, TextMeshProUGUI infCountText, Image backImage, string wardName) where T : NPCController
+    {
+        int totalCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName);
+        int infectedCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName && p.infectionController.isInfected);
+
+        countText.text = $"{totalCount}";
+        infCountText.text = $"{infectedCount}";
+
+        backImage.gameObject.SetActive(totalCount == 0);
     }
 
     public void CheckIsolationStatus()
     {
-        // 격리 1단계 발령 조건
         if (isQuarantineLevel_1)
         {
             qtOutline_1.SetActive(true);
             qtStartButton_1.gameObject.SetActive(false);
             QuarantineManager.quarantineStep = 1;
         }
-        // 격리 1단계 발령 조건
+
         if (isQuarantineLevel_2)
         {
-            qtOutline_1.SetActive(false);
             qtOutline_2.SetActive(true);
             qtStartButton_2.gameObject.SetActive(false);
         }
 
-        // 격리 2단계 발령 조건
         if (isQuarantineLevel_3)
         {
             infoPanel.SetActive(false);
         }
     }
 
-
     public void GoLevel1()
     {
         isQuarantineLevel_1 = true;
         ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 1, 1, 1);
     }
+
     public void GoLevel2()
     {
         isQuarantineLevel_2 = true;
@@ -180,67 +391,77 @@ public class PolicyWard : MonoBehaviour
         ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 1, 3, 1);
     }
 
-    public void ChangeWardToQuarantine()
-    {
-        closeWardButton.gameObject.SetActive(false);
-        quarantineWardButton.gameObject.SetActive(false);
-        normalWardButton.gameObject.SetActive(true);
-        selectWard.QuarantineWard();
+//    // 삭제?
+//    public void ChangeWardToQuarantine()
+//    {
+//        closeWardButton.gameObject.SetActive(false);
+//        quarantineWardButton.gameObject.SetActive(false);
+//        normalWardButton.gameObject.SetActive(true);
+//        selectWard.QuarantineWard();
 
-        //격리 병동으로 전환된 병동 정보 업데이트
-        int index = 1;
-        foreach (string ward in wardNames)
-        {
-            if (ward == selectWard.WardName)
-                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 1);
-            index++;
-        }
-    }
+//        //격리 병동으로 전환된 병동 정보 업데이트
+//        int index = 1;
+//        foreach (string ward in wardNames)
+//        {
+//            if (ward == selectWard.WardName)
+//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 1);
+//            index++;
+//        }
+//    }
 
-    public void ChangeWardToOpen()
-    {
-        quarantineWardButton.gameObject.SetActive(true);
-        closeWardButton.gameObject.SetActive(true);
-        normalWardButton.gameObject.SetActive(false);
-        selectWard.OpenWard();
-        //일반 병동으로 전환된 병동 정보 업데이트
-        int index = 1;
-        foreach (string ward in wardNames)
-        {
-            if (ward == selectWard.WardName)
-                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 3);
-            index++;
-        }
-    }
+//    public void ChangeWardToOpen()
+//    {
+//        quarantineWardButton.gameObject.SetActive(true);
+//        closeWardButton.gameObject.SetActive(true);
+//        normalWardButton.gameObject.SetActive(false);
+//        selectWard.OpenWard();
+//        //일반 병동으로 전환된 병동 정보 업데이트
+//        int index = 1;
+//        foreach (string ward in wardNames)
+//        {
+//            if (ward == selectWard.WardName)
+//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 3);
+//            index++;
+//        }
+//    }
 
-    public void ChangeWardToClose()
-    {
-        quarantineWardButton.gameObject.SetActive(false);
-        closeWardButton.gameObject.SetActive(false);
-        normalWardButton.gameObject.SetActive(true);
-        selectWard.CloseWard();
-        //폐쇄 병동으로 전환된 병동 정보 업데이트
-        int index = 1;
-        foreach (string ward in wardNames)
-        {
-            if (ward == selectWard.WardName)
-                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 2);
-            index++;
-        }
-    }
+//    public void ChangeWardToClose()
+//    {
+//        quarantineWardButton.gameObject.SetActive(false);
+//        closeWardButton.gameObject.SetActive(false);
+//        normalWardButton.gameObject.SetActive(true);
+//        selectWard.CloseWard();
+//        //폐쇄 병동으로 전환된 병동 정보 업데이트
+//        int index = 1;
+//        foreach (string ward in wardNames)
+//        {
+//            if (ward == selectWard.WardName)
+//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 2);
+//            index++;
+//        }
+//    }
 
-    // 제네릭 메서드로 리스트 데이터 처리
-    private void UpdateCountText<T>(List<T> list, TextMeshProUGUI countText, TextMeshProUGUI infCountText, Image backImage, string wardName) where T : NPCController
-    {
-        // 현재 병동에 있는 사람들의 수 계산
-        int totalCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName);
-        int infectedCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName && p.infectionController.isInfected);
+//    // 제네릭 메서드로 리스트 데이터 처리
+//    private void UpdateCountText<T>(List<T> list, TextMeshProUGUI countText, TextMeshProUGUI infCountText, Image backImage, string wardName) where T : NPCController
+//    {
+//        // 현재 병동에 있는 사람들의 수 계산
+//        int totalCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName);
+//        int infectedCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName && p.infectionController.isInfected);
 
-        // UI 업데이트
-        countText.text = $"{totalCount}";
-        infCountText.text = $"{infectedCount}";
+//        // UI 업데이트
+//        countText.text = $"{totalCount}";
+//        infCountText.text = $"{infectedCount}";
 
-        // Back 활성화/비활성화
-        backImage.gameObject.SetActive(totalCount == 0);
-    }
+//        // Back 활성화/비활성화
+//        backImage.gameObject.SetActive(totalCount == 0);
+//// 여기까지
+    //}
+}
+
+public class WardState
+{
+    public bool IsQuarantined;
+    public bool IsClosed;
+    public bool IsDisinfecting;
+    public float DisinfectEndTime;
 }

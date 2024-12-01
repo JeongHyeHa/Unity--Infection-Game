@@ -73,9 +73,14 @@ public class PolicyResearch : MonoBehaviour
 
     private int currentTabIndex = 1; // 현재 탭 인덱스 (1번부터 시작)
 
+    NewsController newsController;
+
+    private string th_virus;            // 현 게임 바이러스 이름
 
     void Awake()
     {
+        newsController = FindObjectOfType<NewsController>();
+
         researchTabButton_1 = Assign(researchTabButton_1, "ResearchTabButton_1");
         researchTabButton_2 = Assign(researchTabButton_2, "ResearchTabButton_2");
         researchTabButton_3 = Assign(researchTabButton_3, "ResearchTabButton_3");
@@ -192,16 +197,22 @@ public class PolicyResearch : MonoBehaviour
         {
             CREInfoTab.SetActive(true);
             covidInfoTab.SetActive(false);
+            th_virus = "CRE";
+            newsController.TriggerPathogenResearchCompleteNews(th_virus);
         }
         else if (level == "Normal")
         {
             CREInfoTab.SetActive(false);
             covidInfoTab.SetActive(true);
+            th_virus = "COVID-19";
+            newsController.TriggerPathogenResearchCompleteNews(th_virus);
         }
         else if (level == "Hard")
         {
             CREInfoTab.SetActive(false);
             covidInfoTab.SetActive(true);
+            th_virus = "COVID-19";
+            newsController.TriggerPathogenResearchCompleteNews(th_virus);
         }
 
         // 연구 완료 알림 활성화
@@ -227,6 +238,7 @@ public class PolicyResearch : MonoBehaviour
         if (vaccineLockPanel != null)
         {
             vaccineLockPanel.SetActive(false); // 백신 패널 해금
+            newsController.TriggerVaccineResearchCompleteNews(th_virus);
             if (vaccineLockPanel != null)
                 vaccineLockPanel.SetActive(false);
         }
@@ -246,6 +258,7 @@ public class PolicyResearch : MonoBehaviour
         if (medicineLockPanel != null)
         {
             medicineLockPanel.SetActive(false); // 치료제 패널 해금
+            newsController.TriggerCureResearchCompleteNews(th_virus);
             if (medicineLockPanel != null)
                 medicineLockPanel.SetActive(false);
         }
