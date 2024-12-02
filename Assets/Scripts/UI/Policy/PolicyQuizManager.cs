@@ -15,11 +15,14 @@ public class PolicyQuizManager : MonoBehaviour
     public GameObject disCorrectPanel;
     public Button disinfectXButton;
 
+    public MonthlyReportUI monthlyReportUI;
+
     int randomIndex;
     string currentWard;
     string[] wardNames;
     string[] layerNames;
     Dictionary<string, List<string>> wardLayerMapping = new Dictionary<string, List<string>>();
+    public static bool isCorrect = false;
 
     // 퀴즈 질문
     public static string[] questions = {
@@ -129,16 +132,22 @@ public class PolicyQuizManager : MonoBehaviour
         disinfectQuest.text = questions[randomIndex];
         for (int i = 0; i < disinfectAnswers.Length; i++)
             disinfectAnswers[i].GetComponentInChildren<TextMeshProUGUI>().text = choices[randomIndex, i];
-        Debug.Log($"PolicyQuiz, {randomIndex}의 정답은 {correctAnswers[randomIndex]}");
+        Debug.Log($"PolicyQuiz, {randomIndex}의 정답은 {correctAnswers[randomIndex]+1}");
     }
 
     //정답 체크
     void OnAnswerSelected(int selectedAnswerIndex)
     {
-        if (selectedAnswerIndex == correctAnswers[randomIndex])
+        if (selectedAnswerIndex == correctAnswers[randomIndex]+1)
+        {
+            isCorrect = true;
             StartCoroutine(ShowCorrectPanel());
+        }
         else
+        {
+            isCorrect = false;
             StartCoroutine(ShowDisWrongPanel());
+        }
     }
 
     //정답 패널 생성
@@ -161,6 +170,13 @@ public class PolicyQuizManager : MonoBehaviour
                 Debug.Log($"PolicyQuiz, {virus.gameObject.name}  바이러스 지워짐. {layerName}");
             }
         }
+
+        // 버튼의 interactable을 false로 설정하고 텍스트 업데이트
+        PolicyWard.Instance.disInfectWardButton.interactable = false;
+        PolicyWard.Instance.normalWardButton.interactable = false;
+        monthlyReportUI.AddExpenseDetail("소독", 500);
+
+        PolicyWard.Instance.disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(PolicyWard.disinfectCooldownTime)}초 남음";
     }
 
     //오답 패널 생성
@@ -170,5 +186,12 @@ public class PolicyQuizManager : MonoBehaviour
         yield return YieldInstructionCache.WaitForSecondsRealtime(1.3f);
         disWrongPanel.SetActive(false);
         questDisfectCanvas.SetActive(false);
+
+        // 버튼의 interactable을 false로 설정하고 텍스트 업데이트
+        PolicyWard.Instance.disInfectWardButton.interactable = false;
+        PolicyWard.Instance.normalWardButton.interactable = false;
+        monthlyReportUI.AddExpenseDetail("소독", 500);
+
+        PolicyWard.Instance.disInfectButtonText.text = $"소독 재시도까지 {Mathf.CeilToInt(PolicyWard.disinfectCooldownTime)}초 남음";
     }
 }
