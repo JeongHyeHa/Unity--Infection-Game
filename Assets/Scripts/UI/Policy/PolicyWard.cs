@@ -283,6 +283,8 @@ public class PolicyWard : MonoBehaviour
     public void DisinfectWard()
     {
         int wardId = selectWard.num;
+        //var wardCounts = GetStaffAndOutpatientCounts(); //d
+        //var wardInfo = wardCounts[wardNames[wardId]];   //d
         WardState state = wardStates[wardId];
 
         if (!state.IsDisinfecting)
@@ -302,6 +304,11 @@ public class PolicyWard : MonoBehaviour
 
             // UI 업데이트
             UpdateWardInfomation(wardId);
+            //인원이 다 빠지면 소독 시작
+            //if (wardInfo.doctorCount == 0 && wardInfo.nurseCount == 0 && wardInfo.outpatientCount == 0 && wardInfo.inpatientCount == 0)
+            {
+                
+            }
         }
     }
 
@@ -391,71 +398,27 @@ public class PolicyWard : MonoBehaviour
         ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 1, 3, 1);
     }
 
-//    // 삭제?
-//    public void ChangeWardToQuarantine()
-//    {
-//        closeWardButton.gameObject.SetActive(false);
-//        quarantineWardButton.gameObject.SetActive(false);
-//        normalWardButton.gameObject.SetActive(true);
-//        selectWard.QuarantineWard();
+    // 병동별 의사, 간호사, 외래환자 데이터 수집
+    public Dictionary<string, (int doctorCount, int nurseCount, int outpatientCount, int inpatientCount)> GetStaffAndOutpatientCounts()
+    {
+        Dictionary<string, (int doctorCount, int nurseCount, int outpatientCount, int inpatientCount)> wardCounts = new Dictionary<string, (int, int, int, int)>();
 
-//        //격리 병동으로 전환된 병동 정보 업데이트
-//        int index = 1;
-//        foreach (string ward in wardNames)
-//        {
-//            if (ward == selectWard.WardName)
-//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 1);
-//            index++;
-//        }
-//    }
+        foreach (Ward ward in Ward.wards)
+        {
+            if (ward.num >= 0 && ward.num <= 7)
+            {
+                int doctorCount = ward.doctors.Count;
+                int nurseCount = ward.nurses.Count;
+                int outpatientCount = ward.outpatients.Count;
+                int inpatientCount = ward.inpatients.Count;
 
-//    public void ChangeWardToOpen()
-//    {
-//        quarantineWardButton.gameObject.SetActive(true);
-//        closeWardButton.gameObject.SetActive(true);
-//        normalWardButton.gameObject.SetActive(false);
-//        selectWard.OpenWard();
-//        //일반 병동으로 전환된 병동 정보 업데이트
-//        int index = 1;
-//        foreach (string ward in wardNames)
-//        {
-//            if (ward == selectWard.WardName)
-//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 3);
-//            index++;
-//        }
-//    }
+                //Debug.Log($"Ward: {ward.WardName}, Doctors: {doctorCount}, Nurses: {nurseCount}, Outpatients: {outpatientCount}");
+                wardCounts.Add(ward.WardName, (doctorCount, nurseCount, outpatientCount, inpatientCount));
+            }
+        }
 
-//    public void ChangeWardToClose()
-//    {
-//        quarantineWardButton.gameObject.SetActive(false);
-//        closeWardButton.gameObject.SetActive(false);
-//        normalWardButton.gameObject.SetActive(true);
-//        selectWard.CloseWard();
-//        //폐쇄 병동으로 전환된 병동 정보 업데이트
-//        int index = 1;
-//        foreach (string ward in wardNames)
-//        {
-//            if (ward == selectWard.WardName)
-//                ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 2, index, 2);
-//            index++;
-//        }
-//    }
-
-//    // 제네릭 메서드로 리스트 데이터 처리
-//    private void UpdateCountText<T>(List<T> list, TextMeshProUGUI countText, TextMeshProUGUI infCountText, Image backImage, string wardName) where T : NPCController
-//    {
-//        // 현재 병동에 있는 사람들의 수 계산
-//        int totalCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName);
-//        int infectedCount = list.Count(p => p.isInCurrentWard && p.currentWard == wardName && p.infectionController.isInfected);
-
-//        // UI 업데이트
-//        countText.text = $"{totalCount}";
-//        infCountText.text = $"{infectedCount}";
-
-//        // Back 활성화/비활성화
-//        backImage.gameObject.SetActive(totalCount == 0);
-//// 여기까지
-    //}
+        return wardCounts;
+    }
 }
 
 public class WardState

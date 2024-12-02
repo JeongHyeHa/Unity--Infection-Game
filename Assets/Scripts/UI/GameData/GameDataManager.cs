@@ -401,7 +401,7 @@ public class GameDataManager : MonoBehaviour
     // Patient Research 모드의 피드백 생성
     private string GetPatientResearchFeedback(int btnNum, int target, int toggleState)
     {
-        string[] patientItems = { "1단계", "2단계", "3단계"};
+        string[] patientItems = { "1단계", "2단계", "3단계" };
         string[] patientTarget = PolicyWard.Instance.wardNames;
         string[] state = { "격리병동", "폐쇄병동", "일반병동" };
 
@@ -415,7 +415,7 @@ public class GameDataManager : MonoBehaviour
             {
                 return $"격리단계 {itemName}로 격상";
             }
-            else if(btnNum == 2) 
+            else if (btnNum == 2)
             {
                 return $"{targetName} {wardState}으로 전환";
             }

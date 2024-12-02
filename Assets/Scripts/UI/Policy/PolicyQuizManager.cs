@@ -7,15 +7,14 @@ using UnityEngine.UI;
 
 public class PolicyQuizManager : MonoBehaviour
 {
-    public static PolicyQuizManager Instance {  get; private set; }
+    public static PolicyQuizManager Instance { get; private set; }
     public GameObject questDisfectCanvas;
     public TextMeshProUGUI disinfectQuest;
     public Button[] disinfectAnswers;
     public GameObject disWrongPanel;
     public GameObject disCorrectPanel;
     public Button disinfectXButton;
-    public Button mm;
-    
+
     int randomIndex;
     string currentWard;
     string[] wardNames;
@@ -73,16 +72,14 @@ public class PolicyQuizManager : MonoBehaviour
         disWrongPanel = GameObject.Find("DisWrongPanel");
         disCorrectPanel = GameObject.Find("DisCorrectPanel");
         disinfectXButton = GameObject.Find("DisinfectXButton").GetComponent<Button>();
-        mm = GameObject.Find("MM").GetComponent<Button>();
-        mm.onClick.AddListener(() => { ClearVirusesInWard("응급실"); Debug.Log($"PolicyQuiz, mm버튼 발동"); });
 
         //4지선다형 버튼 (DisinfectAnswerButton1~ DisinfectAnswerButton4)
         disinfectAnswers = new Button[4];
-        for(int i=0; i<disinfectAnswers.Length; i++)
+        for (int i = 0; i < disinfectAnswers.Length; i++)
         {
             int index = i;
-            disinfectAnswers[index] = GameObject.Find($"DisinfectAnswerButton{index+1}").GetComponent<Button>();
-            disinfectAnswers[index].onClick.AddListener(() => OnAnswerSelected(index+1));
+            disinfectAnswers[index] = GameObject.Find($"DisinfectAnswerButton{index + 1}").GetComponent<Button>();
+            disinfectAnswers[index].onClick.AddListener(() => OnAnswerSelected(index + 1));
         }
 
         disWrongPanel.SetActive(false);
@@ -92,6 +89,7 @@ public class PolicyQuizManager : MonoBehaviour
 
         wardNames = PolicyWard.Instance.wardNames;
         layerNames = Managers.LayerChanger.layers;
+
         InitializeWardLayerMapping();
     }
 
@@ -100,12 +98,16 @@ public class PolicyQuizManager : MonoBehaviour
     {
         wardLayerMapping = new Dictionary<string, List<string>>()
         {
-            { wardNames[2], new List<string> { layerNames[0], layerNames[1] } }, // 외과1
-            { wardNames[3], new List<string> { layerNames[2], layerNames[3] } }, // 외과2
-            { wardNames[0], new List<string> { layerNames[4], layerNames[5] } }, // 내과1
-            { wardNames[1], new List<string> { layerNames[6], layerNames[7] } }, // 내과2
-            { wardNames[8], new List<string> { layerNames[8] } },               // 응급실
-            { wardNames[9], new List<string> { layerNames[9] } }                // 중환자실/격리실
+            { wardNames[2], new List<string> { layerNames[2]} }, // 외과1
+            { wardNames[3], new List<string> { layerNames[3]} }, // 외과2
+            { wardNames[0], new List<string> { layerNames[0]} }, // 내과1
+            { wardNames[1], new List<string> { layerNames[1] } }, // 내과2
+            {wardNames[4], new List<string> {layerNames[4] } },    //입원병동 1
+            {wardNames[5], new List<string> {layerNames[5]} },    //입원병동 2
+            {wardNames[6], new List<string> {layerNames[6]} },    //입원병동 3
+            {wardNames[7], new List<string> {layerNames[7]} },    //입원병동 4
+            { wardNames[8], new List<string> { layerNames[8] } },   // 응급실
+            { wardNames[9], new List<string> { layerNames[9] } }    // 중환자실/격리실
         };
     }
 
@@ -113,21 +115,21 @@ public class PolicyQuizManager : MonoBehaviour
     public void ClearVirusesInWard(string ward)
     {
         currentWard = ward;
+
         if (!wardLayerMapping.ContainsKey(currentWard))
         {
             Debug.LogError($"PolicyQuiz, {currentWard} 레이어에 해당하는 병동 이름이 없음");
             return;
         }
 
-        //소독 퀴즈 시작
         questDisfectCanvas.SetActive(true);
 
         // 랜덤 문제 생성
         randomIndex = UnityEngine.Random.Range(0, questions.Length);
-        Debug.Log($"PolicyQuiz, {randomIndex}의 정답은 {correctAnswers[randomIndex]}");
         disinfectQuest.text = questions[randomIndex];
         for (int i = 0; i < disinfectAnswers.Length; i++)
             disinfectAnswers[i].GetComponentInChildren<TextMeshProUGUI>().text = choices[randomIndex, i];
+        Debug.Log($"PolicyQuiz, {randomIndex}의 정답은 {correctAnswers[randomIndex]}");
     }
 
     //정답 체크
