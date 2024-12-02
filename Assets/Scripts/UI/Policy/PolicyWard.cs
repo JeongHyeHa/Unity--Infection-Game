@@ -42,6 +42,7 @@ public class PolicyWard : MonoBehaviour
 
     private Dictionary<int, WardState> wardStates = new Dictionary<int, WardState>(); // 병동별 상태 저장
     public const float disinfectCooldownTime = 30f;
+    public const float disinfectFalseTime = 15f;
 
     public string[] wardNames = {
         "내과 1", "내과 2",
@@ -272,27 +273,10 @@ public class PolicyWard : MonoBehaviour
 
         if (!state.IsDisinfecting)
         {
-            state.IsDisinfecting = true;
-            PolicyQuizManager.Instance.ClearVirusesInWard(selectWard.WardName);
-
-            ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 3, wardId, 1);
-            state.DisinfectEndTime = Time.time + disinfectCooldownTime;
-
-            //if (PolicyQuizManager.isCorrect)
-            //{
-            //    Debug.Log($"병동 소독 {selectWard.WardName} 시작...");
-            //    disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(disinfectCooldownTime)}초 남음";
-            //}
-            //else
-            //{
-            //    Debug.Log($"병동 소독 {selectWard.WardName} 실패");
-            //    disInfectButtonText.text = $"소독 재시도: {Mathf.CeilToInt(disinfectCooldownTime)}초 남음";
-            //}
-
-            //Debug.Log($"병동 소독 텍스트: {disInfectButtonText.text}");
-
-            // UI 업데이트
-            UpdateWardInfomation(wardId);
+            state.IsDisinfecting = true;    // 소독 시작
+            PolicyQuizManager.Instance.ClearVirusesInWard(selectWard.WardName, state);     // 소독 시작(소독 퀴즈)_ 병동이름, state.DisinfectEndTime
+            ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 3, wardId, 1);   // DB 저장
+            UpdateWardInfomation(wardId);   // UI 업데이트
         }
     }
 
