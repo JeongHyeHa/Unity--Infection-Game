@@ -499,6 +499,68 @@ public class ProfileWindow : MonoBehaviour
                 Debug.LogWarning("해당하는 병동을 찾을 수 없습니다: " + floorName);
             }
         }
+        else if (currentFloor.StartsWith("입원병동"))
+        {
+            WardState state;
+            switch (currentFloor)
+            {
+                case "입원병동 1":
+                    state = PolicyWard.Instance.wardStates[4];
+                    break;
+                case "입원병동 2":
+                    state = PolicyWard.Instance.wardStates[5];
+                    break;
+                case "입원병동 3":
+                    state = PolicyWard.Instance.wardStates[6];
+                    break;
+                case "입원병동 4":
+                    state = PolicyWard.Instance.wardStates[7];
+                    break;
+                default:
+                    state = PolicyWard.Instance.wardStates[0];
+                    break;
+            }
+            if (state.IsClosed)
+            {
+                if (nowWard != null)
+                {
+                    profileWindowButtonPlus.gameObject.SetActive(false);
+                    profileWindowButton.gameObject.SetActive(false);
+                    profileWindowButtonMinus.gameObject.SetActive(true);
+                    emergencyInfo.SetActive(false);
+                    icupatientInfo.SetActive(false);
+                    NowWard.text = $"{nowWard.WardName}";
+                    DoctorCountText.text = $"0";
+                    NurseCountText.text = $"0";
+                    OutpatientCountText.text = $"0";
+                    InpatientCountText.text = $"0";
+                }
+                else
+                {
+                    Debug.LogWarning("해당하는 병동을 찾을 수 없습니다: " + floorName);
+                }
+            }
+            else
+            {
+                if (nowWard != null)
+                {
+                    profileWindowButtonPlus.gameObject.SetActive(false);
+                    profileWindowButton.gameObject.SetActive(false);
+                    profileWindowButtonMinus.gameObject.SetActive(true);
+                    emergencyInfo.SetActive(false);
+                    icupatientInfo.SetActive(false);
+                    NowWard.text = $"{nowWard.WardName}";
+                    DoctorCountText.text = $"{nowWard.doctorCount}";
+                    NurseCountText.text = $"{nowWard.nurseCount}";
+                    OutpatientCountText.text = $"{nowWard.outpatientCount}";
+                    InpatientCountText.text = $"{nowWard.inpatientCount}";
+                }
+                else
+                {
+                    Debug.LogWarning("해당하는 병동을 찾을 수 없습니다: " + floorName);
+                }
+            }
+        }
         else
         {
             // 그 외 병동일 경우 직업별 인원 수를 업데이트

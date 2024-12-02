@@ -15,7 +15,6 @@ public class PolicyQuizManager : MonoBehaviour
     public GameObject disWrongPanel;
     public GameObject disCorrectPanel;
     public Button disinfectXButton;
-
     public MonthlyReportUI monthlyReportUI;
 
     int randomIndex;
@@ -23,8 +22,9 @@ public class PolicyQuizManager : MonoBehaviour
     string[] wardNames;
     string[] layerNames;
     Dictionary<string, List<string>> wardLayerMapping = new Dictionary<string, List<string>>();
-    public static bool isCorrect = false;
+    public static Dictionary<int, bool> isCorrect = new Dictionary<int, bool>(); // 병동별 맞춘 상태 저장
     WardState wardState;
+    int wardIndex;
 
     // 퀴즈 질문
     public static string[] questions = {
@@ -117,10 +117,11 @@ public class PolicyQuizManager : MonoBehaviour
     }
 
     // 특정 병동을 소독할 때 호출하는 함수
-    public void ClearVirusesInWard(string ward, WardState state)
+    public void ClearVirusesInWard(string ward, int wardId)
     {
         currentWard = ward;
-        wardState = state;
+        wardIndex = wardId;
+        wardState = PolicyWard.Instance.wardStates[wardId];
 
         if (!wardLayerMapping.ContainsKey(currentWard))
         {
@@ -143,13 +144,13 @@ public class PolicyQuizManager : MonoBehaviour
     {
         if (selectedAnswerIndex == correctAnswers[randomIndex]+1)
         {
-            isCorrect = true;
+            isCorrect[wardIndex] = true;
             monthlyReportUI.AddExpenseDetail("소독", 500);
             StartCoroutine(ShowCorrectPanel());
         }
         else
         {
-            isCorrect = false;
+            isCorrect[wardIndex] = false;
             StartCoroutine(ShowDisWrongPanel());
         }
     }
@@ -162,20 +163,17 @@ public class PolicyQuizManager : MonoBehaviour
         disCorrectPanel.SetActive(false);
         questDisfectCanvas.SetActive(false);
 
-        PolicyWard.Instance.disInfectWardButton.interactable = false;
-        PolicyWard.Instance.normalWardButton.interactable = false;
-
         // PolicyWard.disinfectCooldownTime 후에 소독 실행됨
-        float elapsedTime = 0f;
-        float maxTime = PolicyWard.disinfectCooldownTime;
+        //float elapsedTime = 0f;
+        //float maxTime = PolicyWard.disinfectCooldownTime;
 
-        while (elapsedTime < maxTime)
-        {
-            elapsedTime += Time.unscaledDeltaTime;
-            wardState.DisinfectEndTime = Mathf.Ceil(maxTime - elapsedTime);
-            PolicyWard.Instance.disInfectButtonText.text = $"소독 중: {wardState.DisinfectEndTime}초 남음";
-            yield return null;
-        }
+        //while (elapsedTime < maxTime)
+        //{
+        //    elapsedTime += Time.unscaledDeltaTime;
+        //    wardState.DisinfectEndTime = Mathf.Ceil(maxTime - elapsedTime);
+            //PolicyWard.Instance.disInfectButtonText.text = $"소독 중: {wardState.DisinfectEndTime}초 남음";
+        //    yield return null;
+        //}
 
         //소독 실행
         Virus[] viruses = FindObjectsOfType<Virus>();
@@ -189,9 +187,9 @@ public class PolicyQuizManager : MonoBehaviour
                 Debug.Log($"PolicyQuiz, {virus.gameObject.name}  바이러스 지워짐. {layerName}");
             }
         }
-        wardState.IsDisinfecting = false;
-        PolicyWard.Instance.disInfectWardButton.interactable = true;
-        PolicyWard.Instance.normalWardButton.interactable = true;
+
+        //wardState.IsDisinfecting = false;
+        isCorrect[wardIndex] = !isCorrect[wardIndex];
     }
 
     //오답 패널 생성
@@ -202,23 +200,19 @@ public class PolicyQuizManager : MonoBehaviour
         disWrongPanel.SetActive(false);
         questDisfectCanvas.SetActive(false);
 
-        PolicyWard.Instance.disInfectWardButton.interactable = false;
-        PolicyWard.Instance.normalWardButton.interactable = false;
-
         // PolicyWard.disinfectFalseTime만큼 카운트다운
-        float elapsedTime = 0f;
-        float maxTime = PolicyWard.disinfectFalseTime;
-        while (elapsedTime < maxTime)
-        {
-            elapsedTime += Time.unscaledDeltaTime;
-            wardState.DisinfectEndTime = Mathf.Ceil(maxTime - elapsedTime);
-            PolicyWard.Instance.disInfectButtonText.text = $"소독 재시도까지 {wardState.DisinfectEndTime}초 남음";
-            yield return null;
-        }
+        //float elapsedTime = 0f;
+        //float maxTime = PolicyWard.disinfectFalseTime;
+        //while (elapsedTime < maxTime)
+        //{
+        //    elapsedTime += Time.unscaledDeltaTime;
+        //    wardState.DisinfectEndTime = Mathf.Ceil(maxTime - elapsedTime);
+        //    //PolicyWard.Instance.disInfectButtonText.text = $"소독 재시도: {wardState.DisinfectEndTime}초 남음";
+        //    yield return null;
+        //}
 
         // 소독 버튼 대기 끝
-        wardState.IsDisinfecting = false;
-        PolicyWard.Instance.disInfectWardButton.interactable = true;
-        PolicyWard.Instance.normalWardButton.interactable = true;
+        //wardState.IsDisinfecting = false;
+        isCorrect[wardIndex] = !isCorrect[wardIndex];
     }
 }

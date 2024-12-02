@@ -40,7 +40,7 @@ public class PolicyWard : MonoBehaviour
     public bool isQuarantineLevel_2 = false; // 격리 2단계 활성화 여부
     public bool isQuarantineLevel_3 = false; // 격리 3단계 활성화 여부
 
-    private Dictionary<int, WardState> wardStates = new Dictionary<int, WardState>(); // 병동별 상태 저장
+    public Dictionary<int, WardState> wardStates = new Dictionary<int, WardState>(); // 병동별 상태 저장
     public const float disinfectCooldownTime = 30f;
     public const float disinfectFalseTime = 15f;
 
@@ -118,10 +118,12 @@ public class PolicyWard : MonoBehaviour
         wardNameText.text = currentWard.WardName;
 
         WardState state = wardStates[index];
+        Debug.Log($"state, update! {index}, {wardStates[index].IsDisinfecting}");
 
         // 병동 이름이 "입원병동"으로 시작하지 않는 경우 버튼 비활성화
         bool isInpatientWard = currentWard.WardName.StartsWith("입원병동");
 
+        MinimapRaycaster.Instance.SetExternalHighlightActive(true, currentWard.WardName);
         quarantineWardButton.gameObject.SetActive(isInpatientWard);
         closeWardButton.gameObject.SetActive(isInpatientWard);
         normalWardButton.gameObject.SetActive(isInpatientWard);
@@ -152,16 +154,17 @@ public class PolicyWard : MonoBehaviour
                 normalWardButton.gameObject.SetActive(false);
                 disInfectWardButton.interactable = false;
                 float remainingTime = state.DisinfectEndTime - Time.time;
-                if (PolicyQuizManager.isCorrect)
-                {
+
+                //Debug.Log($"state, {index}는 소독 중");
+                //if (PolicyQuizManager.isCorrect[index])
+                //{
+                //    Debug.Log($"state, 업데이트에서 {index}의 isCorrect: {PolicyQuizManager.isCorrect[index]}");
                     disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(remainingTime)}초 남음";
-                }
-                else
-                {
-                    disInfectButtonText.text = $"소독 재시도까지 {Mathf.CeilToInt(remainingTime)}초 남음";
-                }
-                
-                
+                //}
+                //else
+                //{
+                //    disInfectButtonText.text = $"소독 재시도까지 {Mathf.CeilToInt(remainingTime)}초 남음";
+                //}
             }
             else
             {
@@ -274,8 +277,10 @@ public class PolicyWard : MonoBehaviour
         if (!state.IsDisinfecting)
         {
             state.IsDisinfecting = true;    // 소독 시작
-            PolicyQuizManager.Instance.ClearVirusesInWard(selectWard.WardName, state);     // 소독 시작(소독 퀴즈)_ 병동이름, state.DisinfectEndTime
+            state.DisinfectEndTime = Time.time + disinfectCooldownTime;
+            //PolicyQuizManager.Instance.ClearVirusesInWard(selectWard.WardName, wardId);     // 소독 시작(소독 퀴즈)_ 병동이름, state.DisinfectEndTime
             ResearchDBManager.Instance.AddResearchData(ResearchDBManager.ResearchMode.patient, 3, wardId, 1);   // DB 저장
+            disInfectButtonText.text = $"소독 중: {Mathf.CeilToInt(disinfectCooldownTime)}초 남음";
             UpdateWardInfomation(wardId);   // UI 업데이트
         }
     }
