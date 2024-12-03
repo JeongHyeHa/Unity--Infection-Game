@@ -9,8 +9,6 @@ public class PatientController : NPCController
     // 웨이포인트 관련 변수
     public int waypointIndex = 0;
 
-    public List<NavMeshPath> navMeshPaths = new List<NavMeshPath>();
-
     // 상태 플래그
     public bool isQuarantined = false;
     public bool isFollowingNurse = false;

@@ -31,6 +31,8 @@ public class NPCController : MonoBehaviour
 
     public ProtectedGearController protectedGear;
 
+    public bool hasChangedLayer = false;
+
     private void Awake()
     {
         // 컴포넌트 초기화
@@ -55,7 +57,7 @@ public class NPCController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<WardRender>() != null && !isInCurrentWard)
+        if(other.gameObject.CompareTag("Floor"))
         {
             gameObject.layer = other.gameObject.layer;
             // 자식 오브젝트도 레이어 변경
@@ -63,6 +65,9 @@ public class NPCController : MonoBehaviour
             {
                 child.gameObject.layer = other.gameObject.layer;
             }
+        }
+        if (other.GetComponent<WardRender>() != null && !isInCurrentWard)
+        {
             string layerName = LayerMask.LayerToName(gameObject.layer);
             switch (layerName)
             {
@@ -110,39 +115,11 @@ public class NPCController : MonoBehaviour
             isInCurrentWard = true; // 병동에 진입하면 상태를 true로 설정
         }
     }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("Floor"))
-        {
-            if (standingState != StandingState.Standing)
-            {
-                return;
-            }
-            if (other.gameObject.layer == gameObject.layer)
-            {
-                return;
-            }
-            gameObject.layer = other.gameObject.layer;
-            // 자식 오브젝트도 레이어 변경
-            foreach (Transform child in gameObject.GetComponentsInChildren<Transform>(true))
-            {
-                child.gameObject.layer = other.gameObject.layer;
-            }
-        }
-    }
-
     private void OnTriggerExit(Collider other)
     {
         if (other.GetComponent<WardRender>() != null && isInCurrentWard)
         {
-            gameObject.layer = other.gameObject.layer;
-            // 자식 오브젝트도 레이어 변경
-            foreach (Transform child in gameObject.GetComponentsInChildren<Transform>(true))
-            {
-                child.gameObject.layer = other.gameObject.layer;
-            }
-            string layerName = LayerMask.LayerToName(gameObject.layer);
+            string layerName = LayerMask.LayerToName(other.gameObject.layer);
             switch (layerName)
             {
                 case "Floor 1 L":
