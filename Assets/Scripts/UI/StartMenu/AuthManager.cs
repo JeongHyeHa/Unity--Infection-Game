@@ -21,7 +21,8 @@ public class AuthManager : MonoBehaviour
     // 로그인 관련 객체들
     public TMP_InputField loginIdInputField;
     public TMP_InputField loginPasswdInputField;
-    public Image loginButton;
+    //public Image loginButton;
+    public Button loginButton;
     public Image loginCloseButton;
     public TMP_Text loginMessageText;
 
@@ -96,7 +97,8 @@ public class AuthManager : MonoBehaviour
 
         // 로그인 이벤트 트리거 추가
         AddEventTrigger(loginCloseButton, (data) => { OnBackButtonClicked(loginPopup); BtnSoundManager.Instance.PlayButtonSound(); });
-        AddEventTrigger(loginButton, (data) => { OnAuthButtonClicked(AuthMode.Login); BtnSoundManager.Instance.PlayButtonSound(); });
+        //AddEventTrigger(loginButton, (data) => { OnAuthButtonClicked(AuthMode.Login); BtnSoundManager.Instance.PlayButtonSound(); });
+        loginButton.onClick.AddListener(() => { OnAuthButtonClicked(AuthMode.Login); BtnSoundManager.Instance.PlayButtonSound(); });
 
         // 회원가입 이벤트 트리거 추가
         AddEventTrigger(signupCloseButton, (data) => { OnBackButtonClicked(signupPopup); BtnSoundManager.Instance.PlayButtonSound(); });
@@ -347,6 +349,8 @@ public class AuthManager : MonoBehaviour
             DisplayMessage("비밀번호가 틀렸습니다.", Color.red);
             return;
         }
+
+        loginButton.interactable = false;
 
         // 게임 데이터에 유저 정보 저장
         string name = UserManager.Instance.GetNameById(id);

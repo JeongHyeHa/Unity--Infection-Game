@@ -22,7 +22,7 @@ public class QuizManager : MonoBehaviour
     public GameObject rightPanel;
     public GameObject coolTimePanel;
     public TextMeshProUGUI rightText;
-    public TextMeshProUGUI moneyText;
+    //public TextMeshProUGUI moneyText;
     public TextMeshProUGUI timerText;
     CurrentMoney currentMoney;
     MonthlyReportUI monthlyReportUI;
@@ -78,7 +78,7 @@ public class QuizManager : MonoBehaviour
         rightPanel = GameObject.Find("RightPanel");
         coolTimePanel = GameObject.Find("CoolTimePanel");
         rightText = GameObject.Find("RightText").GetComponent<TextMeshProUGUI>();
-        moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
+        //moneyText = GameObject.Find("MoneyText").GetComponent<TextMeshProUGUI>();
         timerText = GameObject.Find("TimerText").GetComponent<TextMeshProUGUI>();
         currentMoney = FindObjectOfType<CurrentMoney>();
         monthlyReportUI = FindObjectOfType<MonthlyReportUI>();
@@ -94,7 +94,7 @@ public class QuizManager : MonoBehaviour
         answersDB = MySQLConnector.Instance.GetAnswers();
 
         InitializeIndices();
-        UpdateMoneyUI();
+        //UpdateMoneyUI();
         OnLevelButtonClicked(0);
     }
 
@@ -116,10 +116,10 @@ public class QuizManager : MonoBehaviour
     }
 
     // 현재 금액 업데이트
-    void UpdateMoneyUI()
+    /*void UpdateMoneyUI()
     {
         moneyText.text = $"{currentMoney.CurrentMoneyGetter:N0}Sch";  // 천단위 콤마 추가
-    }
+    }*/
 
     // 메뉴 버튼을 누를 때마다 호출되는 함수 (0~2)
     public void OnLevelButtonClicked(int menuIndex)
@@ -250,14 +250,13 @@ public class QuizManager : MonoBehaviour
         rightText.text = $"{moneyToAdd}Sch 획득하였습니다.";   // 레벨별 정답 패널 텍스트 설정
         currentMoney.CurrentMoneyGetter += moneyToAdd;   // 월말정산표에 반영
         monthlyReportUI.AddIncomeDetail("퀴즈", moneyToAdd);
-        UpdateMoneyUI();
+        //UpdateMoneyUI();
     }
 
     // 레벨별 정산 금액 반환 
     int GetMoneyByLevelButton()
     {
         if (clickbtn == 0)
-
             return 500;
         else if (clickbtn == 1)
             return 1000;
