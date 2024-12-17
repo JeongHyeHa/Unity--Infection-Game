@@ -477,16 +477,16 @@ public class GameDataManager : MonoBehaviour
 
             if (difference20More[i])
             {
-                filteredContent += $"{i + 1}월 - 감염률 급상승!\n";
+                filteredContent += $"{i + 1}분 - 감염률 급상승!\n";
             }
             else
             {
-                filteredContent += $"{i + 1}월\n";
+                filteredContent += $"{i + 1}분\n";
             }
 
             foreach (string line in lines)
             {
-                if (line.StartsWith($"{i + 1}월")) continue;
+                if (line.StartsWith($"{i + 1}분")) continue;
 
                 if (feedbackDoctorToggle.isOn && line.Contains("의사"))
                     filteredContent += $"{line}\n";
