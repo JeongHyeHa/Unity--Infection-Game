@@ -77,7 +77,15 @@ public class ProfileInventoryManager : MonoBehaviour
                 Debug.LogError("Item prefab is missing required TextMeshProUGUI components.");
                 continue;
             }
-            itemNameText.text = item.Key;
+            if (item.Key == "N95 마스크")
+            {
+                string highlightTag = $"<font=\"{ PolicyItem.Instance.font.name}\"><b>N95</b></font>";
+                itemNameText.text = $"{highlightTag} 마스크";
+            }
+            else
+            {
+                itemNameText.text = item.Key;
+            }
             if (item.Value.isEquipped)
             {
                 itemStatusText.text = "O"; // 착용 중은 "O"

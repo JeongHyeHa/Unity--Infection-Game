@@ -18,7 +18,7 @@ class PolicyItemInfo
         "Dental 마스크|10|비말 차단 + 미세입자 방어|3중 구조로 이루어진 일회용 의료 마스크입니다.\n주로 의료 환경에서 감염 예방을 위해 사용되며,\n착용감이 뛰어나고 장시간 사용에도 불편함이 적습니다.|N95 마스크와 중복 착용 할 수 없습니다.",
         "N95 마스크|20|미세 입자 및 비말 차단|고효율 필터로 미세 입자와 비말을 효과적으로\n차단하는 의료용 마스크로, 높은 밀착성과 편안한\n착용감을 제공하여 감염 예방에 필수적입니다.|Dental 마스크와 중복 착용할 수 없습니다.",
         "의료용 장갑|15|세균 및 병원체 차단|밀착성이 뛰어난 라텍스 소재로 세균 및 병원체로부터\n손을 보호하며, 내구성이 우수하여 의료 환경에서\n사용하기 적합한 장갑입니다.| ",
-        "의료용 고글|20|눈 보호 및 비말 차단|의료 현장에서 눈을 보호하고 비말로부터 안전하게\n유지하는 의료용 보호 고글로, 김 서림 방지 처리가 되어\n시야 확보에 용이합니다.| ",
+        "의료용 고글|50|눈 보호 및 비말 차단|의료 현장에서 눈을 보호하고 비말로부터 안전하게\n유지하는 의료용 보호 고글로, 김 서림 방지 처리가 되어\n시야 확보에 용이합니다.| ",
         "AP 가운|25|전신 감염 방어|비말과 체액으로부터 전신을 보호하는 방수 의료용 가운으로,\n내구성이 뛰어나며 의료 종사자의 안전을 보장합니다.| "
     };
 }
@@ -38,6 +38,7 @@ public class PolicyItem : MonoBehaviour
     private Button currentlySelectedButton; // 현재 선택된 버튼
 
     public GameObject quarantineAllItemEquipText;
+    public TMP_FontAsset font;
 
 
     private string[] doctorJobs = { "Doctor", "Nurse", "QuarantineNurse" }; // 모든 아이템 착용 가능 직업
@@ -230,11 +231,29 @@ public class PolicyItem : MonoBehaviour
         TextMeshProUGUI itemEquipmentText = itemEquipmentButton.transform.Find("ItemEquipmentText").GetComponent<TextMeshProUGUI>();
         TextMeshProUGUI itemIsEquipText = itemInstance.transform.Find("ItemEquipment/ItemIsEquipText").GetComponent<TextMeshProUGUI>();
 
-        itemNameText.text = itemName;
+        if (itemName == "N95 마스크")
+        {
+            string highlightTag = $"<font=\"{ font.name}\"><b>N95</b></font>";
+            itemNameText.text = $"{highlightTag} 마스크";
+        }
+        else
+        {
+            itemNameText.text = itemName;
+        }
+
         itemPriceText.text = itemPrice + " SCH(인당)";
         itemEffectText.text = itemEffect;
         itemInformationText.text = itemInformation;
-        itemMoreInfoText.text = itemMoreInfo;
+        if (itemName == "Dental 마스크")
+        {
+            string highlightTag = $"<font=\"{ font.name}\"><b>N95</b></font>";
+            itemMoreInfoText.text = $"{highlightTag} 마스크와 중복 착용 할 수 없습니다.";
+        }
+        else
+        {
+            itemMoreInfoText.text = itemMoreInfo;
+        }
+
         itemIcon.sprite = itemSprite;
 
         // 초기 장착 상태 업데이트

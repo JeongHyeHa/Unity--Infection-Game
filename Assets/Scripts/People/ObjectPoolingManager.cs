@@ -74,11 +74,6 @@ public class ObjectPoolingManager
             GameObject newDoctor = Object.Instantiate(DoctorPrefabs[Random.Range(0, DoctorPrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newDoctor.name = "WardDoctor " + i;
 
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newDoctor, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
-
             DoctorController doctorController = newDoctor.GetComponent<DoctorController>();
             doctorController.num = i;
             doctorController.ward = ward;
@@ -107,7 +102,6 @@ public class ObjectPoolingManager
             // 프리팹 리스트에서 랜덤으로 하나 선택하여 생성
             GameObject newDoctor = Object.Instantiate(DoctorPrefabs[Random.Range(0, DoctorPrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newDoctor.name = "ERDoctor " + i;
-            Managers.LayerChanger.SetLayerRecursively(newDoctor, LayerMask.NameToLayer(Managers.LayerChanger.layers[8]));
 
             DoctorController doctorController = newDoctor.GetComponent<DoctorController>();
             doctorController.waypoints.Add(spawnArea);
@@ -125,7 +119,6 @@ public class ObjectPoolingManager
             // 프리팹 리스트에서 랜덤으로 하나 선택하여 생성
             GameObject newDoctor = Object.Instantiate(DoctorPrefabs[Random.Range(0, DoctorPrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newDoctor.name = "ICUDoctor " + i;
-            Managers.LayerChanger.SetLayerRecursively(newDoctor, LayerMask.NameToLayer(Managers.LayerChanger.layers[9]));
             DoctorController doctorController = newDoctor.GetComponent<DoctorController>();
             doctorController.waypoints.Add(spawnArea);
             doctorController.num = i;
@@ -151,12 +144,6 @@ public class ObjectPoolingManager
             GameObject newNurse = Object.Instantiate(NursePrefabs[Random.Range(0, NursePrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newNurse.name = "WardNurse " + i;
 
-            // 간호사 위치별 Layer 설정
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newNurse, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
-
             NurseController newNurseController = newNurse.GetComponent<NurseController>();
             newNurseController.num = i;
             newNurseController.ward = ward;
@@ -173,12 +160,6 @@ public class ObjectPoolingManager
             Waypoint spawnArea = Managers.NPCManager.waypointDictionary[(ward, "NurseWaypoints")].Find("NurseSpawnArea").gameObject.GetComponent<Waypoint>();
             GameObject newNurse = Object.Instantiate(NursePrefabs[Random.Range(0, NursePrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newNurse.name = "InpatientWardNurse " + i;
-            // 간호사 위치별 Layer 설정
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newNurse, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
-
             NurseController newNurseController = newNurse.GetComponent<NurseController>();
             newNurseController.role = NurseRole.InpateintWard;
             newNurseController.num = i;
@@ -197,12 +178,6 @@ public class ObjectPoolingManager
             GameObject newNurse = Object.Instantiate(NursePrefabs[Random.Range(0, NursePrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newNurse.name = "ERNurse " + i;
 
-            // 간호사 위치별 Layer 설정
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newNurse, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
-
             NurseController newNurseController = newNurse.GetComponent<NurseController>();
             newNurseController.num = i;
             newNurseController.ward = ward;
@@ -220,11 +195,6 @@ public class ObjectPoolingManager
             GameObject newNurse = Object.Instantiate(NursePrefabs[Random.Range(0, NursePrefabs.Length)], spawnArea.GetRandomPointInRange(), Quaternion.identity);
             newNurse.name = "ICUNurse " + i;
 
-            // 간호사 위치별 Layer 설정
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newNurse, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
             NurseController newNurseController = newNurse.GetComponent<NurseController>();
             newNurseController.num = i;
             newNurseController.ward = ward;
@@ -261,7 +231,6 @@ public class ObjectPoolingManager
         newOutpatient.transform.position = position; // 위치 설정
         newOutpatient.SetActive(true); // 활성화
         newOutpatient.tag = "Outpatient";
-        Managers.LayerChanger.SetLayerRecursively(newOutpatient, LayerMask.NameToLayer("Floor 1"));
         PatientController newPatientController = newOutpatient.GetComponent<PatientController>();
         newPatientController.standingState = StandingState.Standing;
         newOutpatients++;
@@ -324,7 +293,6 @@ public class ObjectPoolingManager
         newEmergencyPatient.transform.position = position;
         newEmergencyPatient.SetActive(true);
         newEmergencyPatient.tag = "EmergencyPatient";
-        Managers.LayerChanger.SetLayerRecursively(newEmergencyPatient, LayerMask.NameToLayer("Floor 1"));
         PatientController newPatientController = newEmergencyPatient.GetComponent<PatientController>();
         newPatientController.waypointsTransform = Managers.NPCManager.waypointDictionary[(8, "EmergencyPatientWaypoints")];
         newPatientController.wardComponent = newPatientController.waypointsTransform.GetComponentInParent<Ward>();

@@ -29,13 +29,13 @@ public class ItemManager
     public static List<Item> InitItems()
     {
         return new List<Item>
-        {
-            new Item("Dental 마스크",false, 66),
-            new Item("N95 마스크",false, 83),
-            new Item("의료용 장갑",false, 20),
-            new Item("의료용 고글",false, 15),
-            new Item("AP 가운",false, 30)
-        };
+    {
+        new Item("Dental 마스크",false, 66),
+        new Item("N95 마스크",false, 83),
+        new Item("의료용 장갑",false, 6),
+        new Item("의료용 고글",false, 5),
+        new Item("AP 가운",false, 6)
+    };
     }
 
 

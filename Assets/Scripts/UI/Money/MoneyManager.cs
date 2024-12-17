@@ -114,7 +114,7 @@ public class MoneyManager : MonoBehaviour
         string[] itemNames = { "Dental 마스크", "N95 마스크", "의료용 장갑", "의료용 고글", "AP 가운" };
 
         // 아이템 금액 배열 (itemNames와 1:1 매칭)
-        int[] itemPrices = { 10, 20, 15, 20, 25 };
+        int[] itemPrices = { 10, 20, 15, 50, 25 };
 
         // 아이템별, 직업별 착용자 수를 저장하는 딕셔너리
         Dictionary<string, Dictionary<string, int>> itemUsageByRoleAndType = new Dictionary<string, Dictionary<string, int>>();
@@ -204,7 +204,7 @@ public class MoneyManager : MonoBehaviour
         string[] itemNames = { "Dental 마스크", "N95 마스크", "의료용 장갑", "의료용 고글", "AP 가운" };
 
         // 아이템 금액 배열 (itemNames와 1:1 매칭)
-        int[] itemPrices = { 10, 20, 15, 20, 25 };
+        int[] itemPrices = { 10, 20, 15, 50, 25 };
 
         // 아이템별, 직업별 착용자 수를 저장하는 딕셔너리
         Dictionary<string, int> quarantineNurseItemUsage = new Dictionary<string, int>();

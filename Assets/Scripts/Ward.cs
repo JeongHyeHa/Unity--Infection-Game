@@ -170,9 +170,17 @@ public class Ward : MonoBehaviour
             PatientController inpatient = inpatients[i];
             if (inpatient == null || inpatient.isExiting) continue;
 
-            //격리 병동으로 전환 시 감염된 환자는 병동을 옮기지 않음
+            //격리 병동으로 전환 시 감염된 환자는 병동을 옮기지 않고 격리 환자로 전환
             if(inpatient.personComponent.infectionStatus != InfectionStatus.Normal && status == WardStatus.Quarantined)
             {
+                if(inpatient.hospitalizationCoroutine != null)
+                {
+                    inpatient.StopCoroutine(inpatient.hospitalizationCoroutine);
+                }
+                inpatient.isQuarantined = true;
+                inpatient.StartCoroutine(inpatient.QuarantineTimeCounter());
+                inpatient.personComponent.role = Role.QuarantinedPatient;
+                inpatient.tag = "QuarantinedPatient";
                 continue;
             }
 

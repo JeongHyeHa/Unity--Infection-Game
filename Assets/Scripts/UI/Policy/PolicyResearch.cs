@@ -47,7 +47,7 @@ public class PolicyResearch : MonoBehaviour
     public Button usePanelCloseButton;
 
     private int medicineCount = 0; // 현재 설정된 치료제 사용 개수
-    private int medicineQuantity = 50; // 보유한 치료제 개수 (예시)
+    public TextMeshProUGUI medicineTotalPriceText; // 사용할 치료제만큼 얼마 사용할지 계산
     private Ward medSelectedWard; // 현재 선택된 병동 - 치료제 탭
 
     public GameObject vaccinePrefab;
@@ -225,10 +225,29 @@ public class PolicyResearch : MonoBehaviour
         StartCoroutine(UnlockMedicine());
     }
 
+    private IEnumerator UnlockMedicine()
+    {
+        int remainingTime = 150;
+        while (remainingTime > 0)
+        {
+            medicineTimeText.text = $"치료제 연구 중입니다...\n남은 연구 시간 : {remainingTime}초";
+            yield return YieldInstructionCache.WaitForSecondsRealtime(1f);
+            remainingTime--;
+        }
+        if (medicineLockPanel != null)
+        {
+            medicineLockPanel.SetActive(false); // 치료제 패널 해금
+            newsController.TriggerCureResearchCompleteNews(th_virus);
+            if (medicineLockPanel != null)
+                medicineLockPanel.SetActive(false);
+        }
+        StartCoroutine(UnlockVaccine());
+    }
+
     private IEnumerator UnlockVaccine()
     {
 
-        int remainingTime = 100;
+        int remainingTime = 300;
         while (remainingTime > 0)
         {
             vaccineTimeText.text = $"백신 연구 중입니다...\n남은 연구 시간 : {remainingTime}초";
@@ -246,33 +265,14 @@ public class PolicyResearch : MonoBehaviour
         UpdateTabUI();
     }
 
-    private IEnumerator UnlockMedicine()
-    {
-        int remainingTime = 80;
-        while (remainingTime > 0)
-        {
-            medicineTimeText.text = $"치료제 연구 중입니다...\n남은 연구 시간 : {remainingTime}초";
-            yield return YieldInstructionCache.WaitForSecondsRealtime(1f);
-            remainingTime--;
-        }
-        if (medicineLockPanel != null)
-        {
-            medicineLockPanel.SetActive(false); // 치료제 패널 해금
-            newsController.TriggerCureResearchCompleteNews(th_virus);
-            if (medicineLockPanel != null)
-                medicineLockPanel.SetActive(false);
-        }
-        StartCoroutine(UnlockVaccine());
-    }
-
     private IEnumerator DeactivateResearchCompleteAfterDelay()
     {
         float elapsedTime = 0f;
         while (elapsedTime < 5f)
         {
             researchComplete.SetActive(true);
-            yield return null;
-            elapsedTime += Time.deltaTime;
+            yield return YieldInstructionCache.WaitForSecondsRealtime(1f);
+            elapsedTime += 1f;
         }
 
         researchComplete.SetActive(false); // 5초 후 비활성화
@@ -309,6 +309,7 @@ public class PolicyResearch : MonoBehaviour
     {
         // 텍스트와 개수 설정
         medicineCountText.text = medicineCount.ToString();
+        medicineTotalPriceText.text = $"{medicineCount}개 사용 : {medicineCount * 200} Sch";
 
         // 플러스, 마이너스 버튼의 활성화/비활성화 설정
         bool canIncrement = medicineCount < GetCurrentWardInfectedCount();

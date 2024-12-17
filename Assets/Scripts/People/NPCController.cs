@@ -57,7 +57,7 @@ public class NPCController : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("Floor"))
+        if(other.gameObject.CompareTag("Floor") && standingState == StandingState.Standing)
         {
             gameObject.layer = other.gameObject.layer;
             // 자식 오브젝트도 레이어 변경

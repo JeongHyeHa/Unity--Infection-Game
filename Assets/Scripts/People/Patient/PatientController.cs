@@ -38,18 +38,20 @@ public class PatientController : NPCController
     public Coroutine prevCoroutine;
     public Coroutine moveCoroutine;
     public Coroutine hospitalizationCoroutine;
+
+    public BedWaypoint prevBed;
     public void Activate()
     {
-        do
+        List<Ward> normalWards = Ward.wards.Where(w => w.status == Ward.WardStatus.Normal && w.num >= 0 && w.num <= 3).ToList();
+        if (normalWards.Count > 0)
         {
-            ward = Random.Range(0, 4);
+            Ward selectedWard = normalWards[Random.Range(0, normalWards.Count)];
+            ward = selectedWard.num; // 키에서 ward 값 가져오기
             waypointsTransform = Managers.NPCManager.waypointDictionary[(ward, "OutpatientWaypoints")];
             wardComponent = waypointsTransform.gameObject.GetComponentInParent<Ward>();
         }
-        while (wardComponent.status != Ward.WardStatus.Normal);
         // 첫 번째 웨이포인트 추가
         AddWaypoint(waypointsTransform, $"CounterWaypoint (0)");
-
     }
 
     // 진오 추가
@@ -95,6 +97,7 @@ public class PatientController : NPCController
         }
         if (isQuarantined)
         {
+            agent.stoppingDistance = 0f;
             if (standingState != StandingState.Standing)
             {
                 if(ward == 9)

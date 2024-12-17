@@ -10,7 +10,6 @@ public class Managers : MonoBehaviour
     public static NPCMovementManager NPCManager { get; private set; } = new NPCMovementManager();
     public static StageManager Stage { get; private set; } = new StageManager();
     public static PatientCreator PatientCreator { get; private set; } = new PatientCreator();
-    public static LayerChangeManager LayerChanger { get; private set; } = new LayerChangeManager();
     public static ItemManager Item { get; private set; } = new ItemManager();
 
     private void Awake()
@@ -22,13 +21,11 @@ public class Managers : MonoBehaviour
         Screen.SetResolution(1920, 1080, true);
 
         Item = Item;
-        LayerChanger = LayerChanger;
         ObjectPooling = ObjectPooling;
         NPCManager = NPCManager;
         Stage = Stage;
         Infection = Infection;
 
-        LayerChanger.Init();
         NPCManager.Init();
         ObjectPooling.Init();
     }

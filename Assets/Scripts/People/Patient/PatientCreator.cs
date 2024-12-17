@@ -58,14 +58,6 @@ public class PatientCreator
             GameObject newInpatient = Managers.ObjectPooling.ActivateInpatient(spawnArea.GetMiddlePointInRange());
             newInpatient.name = "Inpatient " + i;
 
-            // 입원 환자 위치별 Layer 설정
-
-
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newInpatient, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
-
             spawnArea.patient = newInpatient;
             PatientController newInpatientController = newInpatient.GetComponent<PatientController>();
             newInpatientController.waypointsTransform = Managers.NPCManager.waypointDictionary[(ward, "InpatientWaypoints")];
@@ -116,11 +108,6 @@ public class PatientCreator
             BedWaypoint spawnArea = Managers.NPCManager.waypointDictionary[(ward, "DoctorWaypoints")].Find("BedWaypoint (" + i + ")").gameObject.GetComponent<BedWaypoint>();
             GameObject newICUPatient = Managers.ObjectPooling.ActiveICUPatient(spawnArea.GetMiddlePointInRange());
             newICUPatient.name = $"ICUPatient {i}";
-
-            if (ward >= 0 && ward < Managers.LayerChanger.layers.Length)
-            {
-                Managers.LayerChanger.SetLayerRecursively(newICUPatient, LayerMask.NameToLayer(Managers.LayerChanger.layers[ward]));
-            }
 
             spawnArea.patient = newICUPatient;
             PatientController newICUPatientController = newICUPatient.GetComponent<PatientController>();

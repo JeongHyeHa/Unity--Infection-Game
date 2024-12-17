@@ -13,7 +13,7 @@ public class GraphManager : MonoBehaviour
 
     public GameObject feedbackGraphPanel;
     public Transform feedgraphContainer;    // 피드백 그래프를 그릴 부모 객체
-    public Transform feedbackContainerArea;    
+    public Transform feedbackContainerArea;
     public Button feedBackButton;
     public Button backButton;
     public Button graphCloseButton;
@@ -86,8 +86,8 @@ public class GraphManager : MonoBehaviour
             graphRectTransform.sizeDelta = sizeDelta;
         }
 
-        float yMax = 80f;    
-        float xSpacing = sizeDelta.x / (scores.Count - 1);    
+        float yMax = 80f;
+        float xSpacing = sizeDelta.x / (scores.Count - 1);
         Vector2 previousPointPosition = Vector2.zero;
 
         // 선 생성
@@ -95,7 +95,7 @@ public class GraphManager : MonoBehaviour
         {
             float xPosition = i * xSpacing;
             float yValue = float.IsNaN(scores[i]) ? 0f : scores[i];
-            float yPosition = (yValue / yMax) * sizeDelta.y;  
+            float yPosition = (yValue / yMax) * sizeDelta.y;
             yPosition = Mathf.Min(yPosition, sizeDelta.y);  // y 값 최대 80으로 제한
             Vector2 currentPointPosition = new Vector2(xPosition + sizeDelta.x / 2 * (-1), yPosition - sizeDelta.y / 2);
 
@@ -180,7 +180,7 @@ public class GraphManager : MonoBehaviour
 
                 foreach (string line in lines)
                 {
-                    if(!string.IsNullOrEmpty(line))
+                    if (!string.IsNullOrEmpty(line))
                         str += $"- {line}\n";
                 }
             }
@@ -208,10 +208,10 @@ public class GraphManager : MonoBehaviour
 
     void QuitGame()
     {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
-        #endif
+#endif
     }
 }

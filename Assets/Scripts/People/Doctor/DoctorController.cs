@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 public enum DoctorRole
 {
     ER,
@@ -110,13 +111,25 @@ public class DoctorController : NPCController
         if (ERWaitingList.Count > 0 && Managers.PatientCreator.startSignal)
         {
             isWorking = true;
-            int random = 0;
-            do
+            if (ERWaitingList.Count == 0)
             {
-                random = Random.Range(0, ERWaitingList.Count);
-            } while (ERWaitingList[random].bedWaypoint == null);
-            patient = ERWaitingList[random].gameObject;
-            agent.SetDestination(ERWaitingList[random].bedWaypoint.GetRandomPointInRange());
+                isWaiting = false;
+                yield break;
+            }
+
+            // `bedWaypoint`가 null이 아닌 항목만 필터링
+            List<PatientController> validPatients = ERWaitingList.Where(patient => patient.bedWaypoint != null).ToList();
+
+            if (validPatients.Count == 0)
+            {
+                isWaiting = false; // 유효한 환자가 없으면 대기 종료
+                yield break;
+            }
+
+            // 유효한 환자 중 무작위 선택
+            int random = Random.Range(0, validPatients.Count);
+            patient = validPatients[random].gameObject;
+            agent.SetDestination(validPatients[random].bedWaypoint.GetRandomPointInRange());
             yield return new WaitUntil(() => Managers.NPCManager.isArrived(agent));
             if (random >= ERWaitingList.Count || ERWaitingList[random].bedWaypoint == null || ERWaitingList[random].bedWaypoint.isEmpty == true)
             {
