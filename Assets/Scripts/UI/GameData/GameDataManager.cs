@@ -382,7 +382,7 @@ public class GameDataManager : MonoBehaviour
     // Gear Research 모드의 피드백 생성
     private string GetGearResearchFeedback(int btnNum, int target, int toggleState)
     {
-        string[] gearTarget = { "의사", "간호사", "격리 간호사", "환자" };
+        string[] gearTarget = { "의사", "간호사", "격리병동간호사", "환자" };
 
         if (btnNum <= gearItems.Count && target <= gearTarget.Length)
         {
